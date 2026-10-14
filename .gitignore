@@ -32,3 +32,8 @@ playwright-report/
 
 # Originais do Figma já não usados (ficam só na máquina de quem os baixou)
 design-source/unused/
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
