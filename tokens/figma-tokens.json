@@ -1,0 +1,431 @@
+{
+  "$comment": "Fonte da verdade dos tokens. Exportado do arquivo Figma Design-System (ipI6hN0vCTwbxOti3eZvKb) em 14/10/2026: coleções publicadas, já resolvidas até o valor final. Cor é [Light, Dark]. NUNCA editar tokens.css à mão: edite aqui e rode `npm run tokens`.",
+  "color": {
+    "surface/base/default": [
+      "#fefefe",
+      "#252428"
+    ],
+    "surface/base/muted": [
+      "#f5f4f2",
+      "#4d4b50"
+    ],
+    "surface/base/elevated": [
+      "#fefefe",
+      "#252428"
+    ],
+    "surface/base/overlay": [
+      "#03030466",
+      "#03030466"
+    ],
+    "surface/base/solid": [
+      "#030304",
+      "#030304"
+    ],
+    "surface/base/inactive": [
+      "#4d4b50",
+      "#4d4b50"
+    ],
+    "surface/base/glass": [
+      "#ffffff99",
+      "#252428b2"
+    ],
+    "surface/base/glass-subtle": [
+      "#ffffff33",
+      "#03030433"
+    ],
+    "surface/base/field": [
+      "#ffffff99",
+      "#4d4b50"
+    ],
+    "surface/media/overlay": [
+      "#d4d2d866",
+      "#d4d2d866"
+    ],
+    "surface/brand/default": [
+      "#d5d0e0",
+      "#0f091a"
+    ],
+    "surface/brand/solid": [
+      "#6f2dbd",
+      "#6f2dbd"
+    ],
+    "surface/brand/hover": [
+      "#552590",
+      "#8b51dd"
+    ],
+    "surface/brand/pressed": [
+      "#3b1f63",
+      "#a082d8"
+    ],
+    "surface/brand/disabled": [
+      "#eae8ee",
+      "#4d4b50"
+    ],
+    "surface/status/danger": [
+      "#f2ebea",
+      "#5a2624"
+    ],
+    "surface/status/danger-solid": [
+      "#d43f3f",
+      "#d43f3f"
+    ],
+    "surface/status/success": [
+      "#e1f2e1",
+      "#213c22"
+    ],
+    "surface/status/success-solid": [
+      "#34863b",
+      "#34863b"
+    ],
+    "surface/status/info": [
+      "#eaedf2",
+      "#1f3759"
+    ],
+    "surface/status/info-solid": [
+      "#3073d4",
+      "#3073d4"
+    ],
+    "surface/status/warning": [
+      "#f2eddb",
+      "#3d3620"
+    ],
+    "surface/status/warning-solid": [
+      "#dbbb4f",
+      "#dbbb4f"
+    ],
+    "text/base/primary": [
+      "#030304",
+      "#fefefe"
+    ],
+    "text/base/primary-inverse": [
+      "#fefefe",
+      "#030304"
+    ],
+    "text/base/secondary": [
+      "#6d6c71",
+      "#98969c"
+    ],
+    "text/base/secondary-inverse": [
+      "#98969c",
+      "#737277"
+    ],
+    "text/base/disabled": [
+      "#d4d2d8",
+      "#737277"
+    ],
+    "text/brand/default": [
+      "#6f2dbd",
+      "#a082d8"
+    ],
+    "text/brand/on-solid": [
+      "#fefefe",
+      "#fefefe"
+    ],
+    "text/brand/on-disabled": [
+      "#b8b7bc",
+      "#98969c"
+    ],
+    "text/brand/link": [
+      "#6f2dbd",
+      "#a082d8"
+    ],
+    "text/status/danger": [
+      "#9d3533",
+      "#f2ebea"
+    ],
+    "text/status/on-danger": [
+      "#fefefe",
+      "#fefefe"
+    ],
+    "text/status/success": [
+      "#2b6430",
+      "#e1f2e1"
+    ],
+    "text/status/on-success": [
+      "#fefefe",
+      "#fefefe"
+    ],
+    "text/status/info": [
+      "#29589e",
+      "#eaedf2"
+    ],
+    "text/status/on-info": [
+      "#fefefe",
+      "#fefefe"
+    ],
+    "text/status/warning": [
+      "#665829",
+      "#f2eddb"
+    ],
+    "text/status/on-warning": [
+      "#030304",
+      "#030304"
+    ],
+    "icon/base/default": [
+      "#030304",
+      "#fefefe"
+    ],
+    "icon/base/default-inverse": [
+      "#fefefe",
+      "#030304"
+    ],
+    "icon/base/disabled": [
+      "#d4d2d8",
+      "#737277"
+    ],
+    "icon/base/muted": [
+      "#737277",
+      "#b8b7bc"
+    ],
+    "icon/brand/default": [
+      "#6f2dbd",
+      "#a082d8"
+    ],
+    "icon/brand/disabled": [
+      "#b8b7bc",
+      "#98969c"
+    ],
+    "icon/status/danger": [
+      "#9d3533",
+      "#f2ebea"
+    ],
+    "icon/status/on-danger": [
+      "#fefefe",
+      "#fefefe"
+    ],
+    "icon/status/success": [
+      "#2b6430",
+      "#e1f2e1"
+    ],
+    "icon/status/on-success": [
+      "#fefefe",
+      "#fefefe"
+    ],
+    "icon/status/info": [
+      "#29589e",
+      "#eaedf2"
+    ],
+    "icon/status/warning": [
+      "#665829",
+      "#f2eddb"
+    ],
+    "border/base/default": [
+      "#d4d2d8",
+      "#737277"
+    ],
+    "border/base/muted": [
+      "#eae8ee",
+      "#4d4b50"
+    ],
+    "border/base/focus": [
+      "#6f2dbd",
+      "#a082d8"
+    ],
+    "border/base/strong": [
+      "#737277",
+      "#b8b7bc"
+    ],
+    "border/brand/default": [
+      "#6f2dbd",
+      "#a082d8"
+    ],
+    "border/brand/subtle": [
+      "#b9abd9",
+      "#552590"
+    ],
+    "border/brand/disabled": [
+      "#eae8ee",
+      "#4d4b50"
+    ],
+    "border/status/danger": [
+      "#d43f3f",
+      "#d43f3f"
+    ],
+    "border/status/success": [
+      "#34863b",
+      "#34863b"
+    ],
+    "border/status/info": [
+      "#3073d4",
+      "#3073d4"
+    ],
+    "border/status/warning": [
+      "#dbbb4f",
+      "#dbbb4f"
+    ]
+  },
+  "spacing": {
+    "component/none": 0,
+    "component/2xs": 4,
+    "component/xs": 8,
+    "component/sm": 12,
+    "component/md": 16,
+    "component/lg": 24,
+    "component/xl": 32,
+    "layout/3xs": 16,
+    "layout/2xs": 20,
+    "layout/xs": 32,
+    "layout/sm": 64,
+    "layout/md": 96,
+    "layout/lg": 160,
+    "layout/xl": 240
+  },
+  "radius": {
+    "radius/none": 0,
+    "radius/sm": 4,
+    "radius/md": 8,
+    "radius/lg": 16,
+    "radius/xl": 24,
+    "radius/full": 9999
+  },
+  "border": {
+    "border-width/base/none": 0,
+    "border-width/base/muted": 0.5,
+    "border-width/base/default": 1.2,
+    "border-width/base/alert": 2.2,
+    "border-width/base/focus": 1.4,
+    "border-width/base/decorative": 4,
+    "border-width/base/indicator": 2.2
+  },
+  "icon": {
+    "icon/stroke-width/default": 1.5,
+    "icon/stroke-width/thin": 1,
+    "icon/stroke-width/bold": 2.2
+  },
+  "motion": {
+    "duration/component/fast": "100ms",
+    "duration/component/base": "150ms",
+    "duration/component/slow": "200ms",
+    "duration/layout/base": "300ms",
+    "duration/layout/slow": "400ms",
+    "easing/entrance": "cubic-bezier(0, 0, 0.2, 1)",
+    "easing/exit": "cubic-bezier(0.4, 0, 1, 1)",
+    "easing/standard": "cubic-bezier(0.4, 0, 0.2, 1)",
+    "easing/linear": "cubic-bezier(0, 0, 1, 1)"
+  },
+  "breakpoint": {
+    "breakpoint/mobile": 320,
+    "breakpoint/tablet": 600,
+    "breakpoint/desktop": 1024,
+    "breakpoint/wide": 1440
+  },
+  "component": {
+    "code-slots/slot-width/sm": 40,
+    "code-slots/slot-width/md": 48,
+    "code-slots/slot-width/lg": 56,
+    "code-slots/slot-height/sm": 48,
+    "code-slots/slot-height/md": 56,
+    "code-slots/slot-height/lg": 64,
+    "field/min-width": 160,
+    "row/min-width": 160,
+    "screen/min-width": 320,
+    "control/touch/min": 44,
+    "control/height/sm": 44,
+    "control/height/md": 52,
+    "control/height/lg": 60,
+    "control/height/xl": 72
+  },
+  "typography": {
+    "$comment": "Text Styles do Figma (não são Variables, ver design-token-standard §1). Valores lidos de get_variable_defs. lineHeight é multiplicador.",
+    "title/sm/semibold": {
+      "family": "display",
+      "weight": 600,
+      "size": 16,
+      "lineHeight": 1.3
+    },
+    "title/xl/bold": {
+      "family": "display",
+      "weight": 700,
+      "size": 24,
+      "lineHeight": 1.3
+    },
+    "title/2xl/bold": {
+      "family": "display",
+      "weight": 700,
+      "size": 36,
+      "lineHeight": 1.3
+    },
+    "title/3xl/bold": {
+      "family": "display",
+      "weight": 700,
+      "size": 48,
+      "lineHeight": 1.3
+    },
+    "body/xs/regular": {
+      "family": "body",
+      "weight": 400,
+      "size": 12,
+      "lineHeight": 1.5
+    },
+    "body/sm/regular": {
+      "family": "body",
+      "weight": 400,
+      "size": 14,
+      "lineHeight": 1.5
+    },
+    "body/sm/medium": {
+      "family": "body",
+      "weight": 500,
+      "size": 14,
+      "lineHeight": 1.5
+    },
+    "body/md/regular": {
+      "family": "body",
+      "weight": 400,
+      "size": 16,
+      "lineHeight": 1.5
+    },
+    "body/xl/regular": {
+      "family": "body",
+      "weight": 400,
+      "size": 20,
+      "lineHeight": 1.5
+    },
+    "label/sm/medium": {
+      "family": "body",
+      "weight": 500,
+      "size": 14,
+      "lineHeight": 1.3
+    },
+    "label/sm/semibold": {
+      "family": "body",
+      "weight": 600,
+      "size": 14,
+      "lineHeight": 1.3
+    },
+    "label/md/medium": {
+      "family": "body",
+      "weight": 500,
+      "size": 16,
+      "lineHeight": 1.3
+    },
+    "label/lg/semibold": {
+      "family": "body",
+      "weight": 600,
+      "size": 18,
+      "lineHeight": 1.3
+    },
+    "label/2xl/semibold": {
+      "family": "body",
+      "weight": 600,
+      "size": 24,
+      "lineHeight": 1.3
+    },
+    "body/md/medium": {
+      "family": "body",
+      "weight": 500,
+      "size": 16,
+      "lineHeight": 1.5
+    }
+  },
+  "elevation": {
+    "$comment": "Effect Styles lidos de get_variable_defs e dos Component Sets do DS (SocialButton). box-shadow equivale a DROP_SHADOW (x y blur spread cor).",
+    "elevation/1": "0 1px 2px 0 #03030414, 0 1px 3px -1px #0303040f",
+    "elevation/3": "0 4px 8px -2px #03030412, 0 6px 12px -3px #0303040f",
+    "elevation/4": "0 8px 16px -4px #03030412, 0 12px 24px -6px #0303040d"
+  },
+  "fonts": {
+    "display": "Plus Jakarta Sans",
+    "body": "Manrope"
+  }
+}
