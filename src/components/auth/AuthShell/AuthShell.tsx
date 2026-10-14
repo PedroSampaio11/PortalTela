@@ -52,7 +52,8 @@ export function AuthShell() {
 /**
  * Todas as cenas ficam montadas e empilhadas; só a ativa aparece. Cena e personagem de TODAS são decodificadas
  * antes da primeira exibição (a ilustração entra de uma vez, com um fade, em vez de "montar" aos pedaços).
- * O recorte animado entra por último, com fade, e some com "reduzir movimento".
+ * A animação (a figura inteira, quadro a quadro, como no Figma) entra por último, com fade, e some com
+ * "reduzir movimento" (fica a personagem estática).
  */
 function Backdrop({ active }: { active: Scene['id'] }) {
   const reduceMotion = usePrefersReducedMotion()
@@ -77,8 +78,25 @@ function Backdrop({ active }: { active: Scene['id'] }) {
   )
 }
 
+/** Só a cena visível anima: a outra segue animando até terminar o fade e depois é desmontada (sem custo de GPU/CPU). */
+const SCENE_FADE_MS = 700
+
+function useLingering(on: boolean, ms: number): boolean {
+  const [lingering, setLingering] = useState(on)
+  if (on && !lingering) setLingering(true)
+  useEffect(() => {
+    if (on) return
+    const id = window.setTimeout(() => setLingering(false), ms)
+    return () => window.clearTimeout(id)
+  }, [on, ms])
+  return on || lingering
+}
+
 function SceneView({ scene, active, animate }: { scene: Scene; active: boolean; animate: boolean }) {
   const [motionLoaded, setMotionLoaded] = useState(false)
+  const playing = useLingering(active, SCENE_FADE_MS)
+  // Com a animação (a figura inteira, como no Figma) no ar, a personagem estática sai de baixo dela: não há "fantasma".
+  const covered = animate && playing && motionLoaded
   const { x, y, width, height } = scene.motionBox
   const style = {
     '--ratio': scene.width / scene.height,
@@ -91,8 +109,8 @@ function SceneView({ scene, active, animate }: { scene: Scene; active: boolean; 
   return (
     <div className={styles.scene} data-scene={scene.id} data-active={active || undefined} style={style}>
       <img className={styles.layer} data-layer="plate" src={scene.plate} alt="" decoding="async" fetchPriority={active ? 'high' : 'low'} />
-      <img className={styles.layer} data-layer="character" src={scene.character} alt="" decoding="async" fetchPriority={active ? 'high' : 'low'} />
-      {animate && (
+      <img className={styles.layer} data-layer="character" data-covered={covered || undefined} src={scene.character} alt="" decoding="async" fetchPriority={active ? 'high' : 'low'} />
+      {animate && playing && (
         <img
           className={styles.motion}
           data-layer="motion"

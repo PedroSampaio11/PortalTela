@@ -1,8 +1,6 @@
 import { useId } from 'react'
 import type { Ref } from 'react'
 import { Checkbox } from '@/components/ui/Checkbox'
-import { Reveal } from '@/components/ui/Reveal'
-import { useRetained } from '@/hooks/useRetained'
 import { TextLink } from '@/components/ui/TextLink'
 import styles from './ConsentRow.module.css'
 
@@ -22,7 +20,6 @@ interface ConsentRowProps {
  */
 export function ConsentRow({ ref, errorMessage, ...rest }: ConsentRowProps) {
   const errorId = useId()
-  const retainedError = useRetained(errorMessage)
   return (
     <div className={styles.root}>
       <Checkbox
@@ -44,11 +41,10 @@ export function ConsentRow({ ref, errorMessage, ...rest }: ConsentRowProps) {
           </span>
         }
       />
-      <Reveal open={Boolean(errorMessage)} gap="var(--component-xs)">
-        <p id={errorId} className={styles.error}>
-          {retainedError}
-        </p>
-      </Reveal>
+      {/* Espaço do erro sempre reservado: aparece com fade, sem mexer na altura da tela. */}
+      <p id={errorId} className={styles.error}>
+        {errorMessage && <span key={errorMessage} className={styles.errorText}>{errorMessage}</span>}
+      </p>
     </div>
   )
 }

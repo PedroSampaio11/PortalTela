@@ -85,7 +85,7 @@ npm test            # testes de unidade e de jornada (vitest)
 npm run test:e2e    # testes em navegador real (Playwright): jornadas, layout sem rolagem
                     #   (49 estados x 8 janelas) e acessibilidade (axe, WCAG 2.1 AA)
 npm run typecheck && npm run lint
-npm run images      # regenera as ilustrações (cena, personagem e recorte animado) a partir de design-source/
+npm run images      # regenera as ilustrações (cena, personagem e a animação completa do Figma) a partir de design-source/
 ```
 
 Na primeira vez que for rodar o `test:e2e`: `npx playwright install chromium`.

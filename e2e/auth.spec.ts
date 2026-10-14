@@ -110,7 +110,7 @@ test.describe('login', () => {
 })
 
 test.describe('ilustração', () => {
-  test('cena, personagem e recorte animado carregam inteiros, em alta qualidade', async ({ page }) => {
+  test('cena, personagem e animação carregam inteiros, em alta qualidade', async ({ page }) => {
     await page.goto('/entrar')
     const layers = page.locator('[data-scene="balcony"] [data-layer]')
     await expect(layers).toHaveCount(3)
@@ -127,15 +127,18 @@ test.describe('ilustração', () => {
   test('as camadas NÃO remontam nem recarregam ao navegar entre telas e estados', async ({ page }) => {
     await page.goto('/entrar?demo')
     await expect(page.locator('[data-layer="motion"][data-loaded]').first()).toBeAttached({ timeout: 10_000 })
-    await page.evaluate(() => {
-      ;(window as unknown as { __layers: Element[] }).__layers = [...document.querySelectorAll('[data-layer]')]
-    })
+    // Cena e personagem de todas as cenas ficam montadas; a animação só existe na cena visível
+    // (a outra o desmonta ao fim da troca, de propósito), por isso não entra na comparação.
+    const STATIC = '[data-layer="plate"], [data-layer="character"]'
+    await page.evaluate((sel) => {
+      ;(window as unknown as { __layers: Element[] }).__layers = [...document.querySelectorAll(sel)]
+    }, STATIC)
     const same = () =>
-      page.evaluate(() => {
+      page.evaluate((sel) => {
         const before = (window as unknown as { __layers: Element[] }).__layers
-        const now = [...document.querySelectorAll('[data-layer]')]
+        const now = [...document.querySelectorAll(sel)]
         return before.length === now.length && before.every((node, i) => node === now[i] && node.isConnected)
-      })
+      }, STATIC)
 
     await page.getByRole('link', { name: 'Criar conta' }).click()
     await expect(page).toHaveURL(/\/cadastro/)
@@ -148,6 +151,16 @@ test.describe('ilustração', () => {
     await page.keyboard.press('Alt+ArrowRight')
     await page.keyboard.press('Alt+ArrowRight')
     expect(await same()).toBe(true)
+  })
+
+  test('só a cena visível mantém a animação montada (a outra o libera após a troca)', async ({ page }) => {
+    await page.goto('/entrar')
+    await expect(page.locator('[data-scene="balcony"] [data-layer="motion"][data-loaded]')).toHaveCount(1, { timeout: 10_000 })
+    await expect(page.locator('[data-layer="motion"]')).toHaveCount(1)
+    await page.getByRole('link', { name: 'Criar conta' }).click()
+    await expect(page.locator('[data-scene="stairs"] [data-layer="motion"]')).toHaveCount(1)
+    await expect(page.locator('[data-layer="motion"]')).toHaveCount(1, { timeout: 5_000 })
+    await expect(page.locator('[data-scene="balcony"] [data-layer="motion"]')).toHaveCount(0)
   })
 
   test('a troca de cena não deixa "buraco": a cobertura nunca cai', async ({ page }) => {
@@ -181,7 +194,7 @@ test.describe('ilustração', () => {
     await expect(page.locator('[data-scene="balcony"]')).toHaveAttribute('data-active', 'true')
   })
 
-  test('com "reduzir movimento" só a cena e a personagem (sem recorte animado)', async ({ browser }) => {
+  test('com "reduzir movimento" só a cena e a personagem (sem animação)', async ({ browser }) => {
     const context = await browser.newContext({ reducedMotion: 'reduce', viewport: { width: 1440, height: 1024 } })
     const page = await context.newPage()
     await page.goto('/entrar')
@@ -192,4 +205,86 @@ test.describe('ilustração', () => {
     await expect(page.locator('[data-layer="motion"]')).toHaveCount(0)
     await context.close()
   })
+})
+
+test.describe('interação fluida: a tela não muda de tamanho', () => {
+  const geometry = (page: Page) =>
+    page.evaluate(() => {
+      const card = document.querySelector('main')!.firstElementChild!
+      const top = (selector: string) => Math.round(card.querySelector(selector)!.getBoundingClientRect().top)
+      return { height: Math.round(card.getBoundingClientRect().height), title: top('h1'), submit: top('button[type="submit"]') }
+    })
+
+  test('login: helper de validação e erro de credencial não mexem em nada', async ({ page }) => {
+    await page.goto('/entrar')
+    await page.waitForTimeout(800)
+    const base = await geometry(page)
+
+    await page.getByLabel('E-mail').fill('x')
+    await page.getByLabel('E-mail').blur()
+    await expect(page.getByText('Digite um e-mail válido')).toBeVisible()
+    expect(await geometry(page)).toEqual(base)
+
+    await page.getByLabel('E-mail').fill('test@gmail.com')
+    await page.getByLabel('Senha', { exact: true }).fill('errada123')
+    await page.getByRole('button', { name: 'Entrar', exact: true }).click()
+    await expect(page.getByRole('alert')).toContainText('E-mail ou senha incorretos', { timeout: 10_000 })
+    expect(await geometry(page)).toEqual(base)
+  })
+
+  test('cadastro: erros dos campos e dos termos não mexem em nada', async ({ page }) => {
+    await page.goto('/cadastro')
+    await page.waitForTimeout(800)
+    const base = await geometry(page)
+    await page.getByLabel('E-mail').fill('x')
+    await page.getByLabel('E-mail').blur()
+    await page.getByLabel('Nome completo').focus()
+    await page.getByLabel('Nome completo').blur()
+    await page.waitForTimeout(500)
+    expect(await geometry(page)).toEqual(base)
+  })
+})
+
+test.describe('senha', () => {
+  async function toPasswordStep(page: Page) {
+    await page.goto('/cadastro?demo&state=signup.password')
+    await expect(page.getByRole('heading', { name: 'Crie sua senha' })).toBeVisible()
+  }
+
+  test('criar senha: colar e copiar são bloqueados; digitar funciona', async ({ page }) => {
+    await toPasswordStep(page)
+    const confirm = page.getByLabel('Confirmar senha')
+    const blocked = await confirm.evaluate((el) => {
+      const dt = new DataTransfer()
+      dt.setData('text/plain', 'Colada@123')
+      const paste = new ClipboardEvent('paste', { clipboardData: dt, bubbles: true, cancelable: true })
+      el.dispatchEvent(paste)
+      const copy = new ClipboardEvent('copy', { bubbles: true, cancelable: true })
+      el.dispatchEvent(copy)
+      return { paste: paste.defaultPrevented, copy: copy.defaultPrevented, value: (el as HTMLInputElement).value }
+    })
+    expect(blocked).toEqual({ paste: true, copy: true, value: expect.not.stringContaining('Colada') })
+    await expect(page.getByText('Digite a senha, colar não é permitido.')).toBeVisible()
+    await confirm.click()
+    await page.keyboard.type('Digitada@123')
+    await expect(confirm).toHaveValue('Digitada@123')
+  })
+
+  test('aviso de Caps Lock aparece no espaço do helper e some ao desligar', async ({ page }) => {
+    await page.goto('/entrar')
+    const password = page.getByLabel('Senha', { exact: true })
+    await page.waitForTimeout(800)
+    const before = await page.evaluate(() => Math.round(document.querySelector('main')!.firstElementChild!.getBoundingClientRect().height))
+    await password.focus()
+    await password.evaluate((el) => el.dispatchEvent(new KeyboardEvent('keydown', { key: 'A', bubbles: true, modifierCapsLock: true })))
+    await expect(page.getByText(/Caps Lock ativado/)).toBeVisible()
+    expect(await page.evaluate(() => Math.round(document.querySelector('main')!.firstElementChild!.getBoundingClientRect().height))).toBe(before)
+    await password.evaluate((el) => el.dispatchEvent(new KeyboardEvent('keyup', { key: 'CapsLock', bubbles: true, modifierCapsLock: false })))
+    await expect(page.getByText(/Caps Lock ativado/)).toHaveCount(0)
+  })
+})
+
+test('etapa do código mostra o e-mail com o começo escondido', async ({ page }) => {
+  await signUpToCodeStep(page)
+  await expect(page.getByText('Enviamos um código de 6 dígitos para *****ouza@email.com')).toBeVisible()
 })

@@ -79,7 +79,13 @@
   user-select: none;
 }
 
-/* Recorte animado (cabelo, mãos e celular) na posição da arte original; entra com fade. */
+/* A personagem estática só sai depois de a animação (que a cobre por inteiro) terminar de aparecer. */
+.layer[data-layer='character'][data-covered] {
+  opacity: 0;
+  transition: opacity 0s linear var(--duration-layout-slow);
+}
+
+/* Animação da figura inteira, na posição da arte original; entra com fade. */
 .motion {
   position: absolute;
   left: var(--mx);

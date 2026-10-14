@@ -5,10 +5,10 @@
     "frames": 97,
     "frameMs": 40,
     "motion": {
-      "x": 213,
-      "y": 154,
-      "width": 225,
-      "height": 296
+      "x": 198,
+      "y": 127,
+      "width": 333,
+      "height": 732
     }
   },
   "signup": {
@@ -17,10 +17,10 @@
     "frames": 97,
     "frameMs": 40,
     "motion": {
-      "x": 281,
-      "y": 256,
-      "width": 215,
-      "height": 289
+      "x": 260,
+      "y": 232,
+      "width": 424,
+      "height": 519
     }
   }
 }

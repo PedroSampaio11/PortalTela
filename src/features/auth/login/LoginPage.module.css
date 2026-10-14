@@ -8,7 +8,8 @@
 .fields {
   display: flex;
   flex-direction: column;
-  gap: var(--component-md);
+  /* O espaço do helper (reservado) já separa os campos. */
+  gap: var(--component-xs);
   width: 100%;
 }
 

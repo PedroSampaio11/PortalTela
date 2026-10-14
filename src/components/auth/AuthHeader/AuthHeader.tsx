@@ -6,6 +6,8 @@ interface AuthHeaderProps {
   title: string
   /** Figma `Description`. */
   description?: string
+  /** Reserva a altura de N linhas da descrição (a etapa do código troca de texto ao bloquear: a tela não pula). */
+  descriptionLines?: number
 }
 
 // Só move o foco em trocas de tela/etapa, não no primeiro carregamento da página. A marca é posta
@@ -16,7 +18,7 @@ let hasRendered = false
  * `AuthHeader` do DS (3048:77401). É o `h1` da tela: a cada nova etapa o foco vai para ele,
  * como manda a regra de foco em SPA (accessible-component-patterns, keyboard-and-focus).
  */
-export function AuthHeader({ title, description }: AuthHeaderProps) {
+export function AuthHeader({ title, description, descriptionLines }: AuthHeaderProps) {
   const ref = useRef<HTMLHeadingElement>(null)
 
   useEffect(() => {
@@ -39,7 +41,11 @@ export function AuthHeader({ title, description }: AuthHeaderProps) {
       <h1 ref={ref} tabIndex={-1} className={styles.title}>
         {title}
       </h1>
-      {description && <p className={styles.description}>{description}</p>}
+      {description && (
+        <p className={styles.description} style={descriptionLines ? { minHeight: `calc(${descriptionLines} * 1.5em)` } : undefined}>
+          {description}
+        </p>
+      )}
     </div>
   )
 }

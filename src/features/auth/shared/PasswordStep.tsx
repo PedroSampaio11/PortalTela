@@ -80,6 +80,7 @@ export function PasswordStep({
             ref={passwordRef}
             label={passwordLabel}
             autoComplete="new-password"
+            blockClipboard
             placeholder={passwordPlaceholder}
             value={password}
             onChange={(event) => setPassword(event.target.value)}
@@ -91,6 +92,7 @@ export function PasswordStep({
             ref={confirmRef}
             label={confirmLabel}
             autoComplete="new-password"
+            blockClipboard
             placeholder={confirmPlaceholder}
             value={confirm}
             onChange={(event) => setConfirm(event.target.value)}

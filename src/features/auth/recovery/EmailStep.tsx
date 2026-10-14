@@ -55,7 +55,7 @@ export function EmailStep({ defaultEmail, scenario, onSent }: EmailStepProps) {
         title="Esqueceu sua senha?"
         description="Informe o e-mail da sua conta. Se ele estiver cadastrado, enviaremos um código para criar uma nova senha."
       />
-      <InlineMessageSlot hasIcon message={failed && 'Não conseguimos enviar o código agora. Verifique sua conexão e tente de novo.'} />
+      <InlineMessageSlot reserve hasIcon message={failed && 'Não conseguimos enviar o código agora. Verifique sua conexão e tente de novo.'} />
       <form className={styles.form} onSubmit={submit} noValidate aria-busy={submitting || undefined}>
         <TextField
           label="E-mail"

@@ -68,6 +68,24 @@
 .helper {
   font: var(--type-body-sm-regular);
   color: var(--text-base-secondary);
+  /* Espaço de uma linha SEMPRE reservado (14px x 1.5): o texto não altera a altura do formulário. */
+  min-height: 21px;
+}
+
+.helperText {
+  display: block;
+  animation: helper-in var(--duration-component-base) var(--easing-entrance) both;
+}
+
+@keyframes helper-in {
+  from {
+    opacity: 0;
+    transform: translateY(-3px);
+  }
+}
+
+.root[data-helper-tone='warning'] .helper {
+  color: var(--text-status-warning);
 }
 
 /* Hover: anel em roxo fraco. */

@@ -62,3 +62,21 @@
 .message {
   color: var(--tone-text);
 }
+
+/* Espaço reservado da mensagem (uma linha: 2 x padding + 21px de texto). O vão entre os blocos do formulário
+   é 24px; aqui ele vira 16px de cada lado, para a tela não crescer. */
+.reserved {
+  min-height: calc(2 * var(--component-md) + var(--lines, 1) * 21px);
+  margin-block: calc(var(--component-md) - var(--component-lg));
+}
+
+.enter {
+  animation: message-in var(--duration-component-base) var(--easing-entrance) both;
+}
+
+@keyframes message-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}

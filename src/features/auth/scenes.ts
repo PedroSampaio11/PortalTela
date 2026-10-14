@@ -10,7 +10,7 @@ import meta from '@/assets/images/scenes.json'
  * Cenas do painel da marca. Cada cena tem 3 camadas (geradas por `npm run images` a partir do Figma):
  *  - plate:      a cena, sem pessoa
  *  - character:  a personagem em PNG 24 bits (aparece junto com a cena)
- *  - motion:     recorte animado só do que se mexe (cabelo, mãos e celular), no mesmo enquadramento
+ *  - motion:     a animação do Figma (figura inteira, todos os quadros), no mesmo enquadramento
  */
 export type SceneId = 'balcony' | 'stairs'
 
@@ -22,7 +22,7 @@ export interface Scene {
   /** Proporção da arte (largura / altura): define o enquadramento "cobrir". */
   width: number
   height: number
-  /** Onde o recorte animado fica na arte, em px da arte original. */
+  /** Onde a animação fica na arte, em px da arte original. */
   motionBox: { x: number; y: number; width: number; height: number }
 }
 

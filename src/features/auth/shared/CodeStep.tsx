@@ -152,8 +152,8 @@ export function CodeStep({ flow, codeFlow, footer, scenario, email, initialLocke
 
   return (
     <>
-      <AuthHeader title="Digite o código de verificação" description={description} />
-      <InlineMessageSlot hasIcon tone={expired ? 'warning' : 'error'} message={notice} />
+      <AuthHeader title="Digite o código de verificação" description={description} descriptionLines={flow === 'recovery' ? 2 : undefined} />
+      <InlineMessageSlot reserve lines={2} hasIcon tone={expired ? 'warning' : 'error'} message={notice} />
       <form className={styles.form} onSubmit={handleSubmit} noValidate aria-busy={busy || undefined}>
         <CodeSlots
           label="Código de verificação de 6 dígitos"

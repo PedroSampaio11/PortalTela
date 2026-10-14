@@ -68,7 +68,9 @@ export function LoginPage() {
     ? `Muitas tentativas. Por segurança, aguarde ${waitText} ou redefina sua senha.`
     : hasServerError
       ? MESSAGES[login.errorKind]
-      : null
+      : phase === 'socialError'
+        ? MESSAGES.social
+        : null
   // Erro de credencial marca os dois campos sem dizer qual errou (não revela se a conta existe).
   const fieldsInError = hasServerError && login.errorKind === 'credentials'
 
@@ -82,7 +84,7 @@ export function LoginPage() {
     <AuthCard backTo="/" backLabel="Voltar para o início">
       <AuthHeader title="Entrar" description="Acesse sua conta para acompanhar o que importa para você." />
 
-      <InlineMessageSlot id={messageId} hasIcon message={message} />
+      <InlineMessageSlot reserve id={messageId} hasIcon message={message} />
 
       <form className={styles.form} onSubmit={submit} noValidate aria-busy={submitting || undefined}>
         <div className={styles.fields}>
@@ -140,7 +142,6 @@ export function LoginPage() {
 
       <SocialLogin
         loadingProvider={socialLoading ? login.provider : null}
-        error={phase === 'socialError' ? MESSAGES.social : undefined}
         onProvider={login.signInWithProvider}
       />
 
