@@ -112,9 +112,9 @@ test.describe('login', () => {
 test.describe('ilustração', () => {
   test('cena, personagem e animação carregam inteiros, em alta qualidade', async ({ page }) => {
     await page.goto('/entrar')
-    const layers = page.locator('[data-scene="balcony"] [data-layer]')
+    const layers = page.locator('[data-scene="person-4"] [data-layer]')
     await expect(layers).toHaveCount(3)
-    await expect(page.locator('[data-scene="balcony"] [data-layer="motion"][data-loaded]')).toHaveCount(1, { timeout: 10_000 })
+    await expect(page.locator('[data-scene="person-4"] [data-layer="motion"][data-loaded]')).toHaveCount(1, { timeout: 10_000 })
     const info = await layers.evaluateAll((imgs) =>
       (imgs as HTMLImageElement[]).map((img) => ({ layer: img.dataset.layer, ok: img.complete && img.naturalWidth > 0, w: img.naturalWidth })),
     )
@@ -155,12 +155,12 @@ test.describe('ilustração', () => {
 
   test('só a cena visível mantém a animação montada (a outra o libera após a troca)', async ({ page }) => {
     await page.goto('/entrar')
-    await expect(page.locator('[data-scene="balcony"] [data-layer="motion"][data-loaded]')).toHaveCount(1, { timeout: 10_000 })
+    await expect(page.locator('[data-scene="person-4"] [data-layer="motion"][data-loaded]')).toHaveCount(1, { timeout: 10_000 })
     await expect(page.locator('[data-layer="motion"]')).toHaveCount(1)
     await page.getByRole('link', { name: 'Criar conta' }).click()
-    await expect(page.locator('[data-scene="stairs"] [data-layer="motion"]')).toHaveCount(1)
+    await expect(page.locator('[data-scene="person-2"] [data-layer="motion"]')).toHaveCount(1)
     await expect(page.locator('[data-layer="motion"]')).toHaveCount(1, { timeout: 5_000 })
-    await expect(page.locator('[data-scene="balcony"] [data-layer="motion"]')).toHaveCount(0)
+    await expect(page.locator('[data-scene="person-4"] [data-layer="motion"]')).toHaveCount(0)
   })
 
   test('a troca de cena não deixa "buraco": a cobertura nunca cai', async ({ page }) => {
@@ -183,15 +183,123 @@ test.describe('ilustração', () => {
     await page.waitForTimeout(1200)
     const min = await page.evaluate(() => (window as unknown as { __minCoverage: number }).__minCoverage)
     expect(min).toBeGreaterThan(0.999)
-    await expect(page.locator('[data-scene="stairs"]')).toHaveAttribute('data-active', 'true')
+    await expect(page.locator('[data-scene="person-2"]')).toHaveAttribute('data-active', 'true')
   })
 
   test('Login e Recuperação usam a mesma cena (sem troca nenhuma entre elas)', async ({ page }) => {
     await page.goto('/entrar')
-    await expect(page.locator('[data-scene="balcony"]')).toHaveAttribute('data-active', 'true')
+    await expect(page.locator('[data-scene="person-4"]')).toHaveAttribute('data-active', 'true')
     await page.getByRole('link', { name: 'Esqueci minha senha' }).click()
     await expect(page).toHaveURL(/recuperar-senha/)
-    await expect(page.locator('[data-scene="balcony"]')).toHaveAttribute('data-active', 'true')
+    await expect(page.locator('[data-scene="person-4"]')).toHaveAttribute('data-active', 'true')
+  })
+
+  test('na demonstração o guia troca o fundo das 3 telas e a escolha vale ao navegar', async ({ page }) => {
+    await page.goto('/entrar?demo')
+    const active = (id: string) => expect(page.locator(`[data-scene="${id}"]`)).toHaveAttribute('data-active', 'true')
+    await active('person-4')
+
+    await page.getByRole('button', { name: /^Demo/ }).click()
+    const group = page.getByRole('group', { name: 'Fundo da tela' })
+    for (const [name, id] of [['Pessoa 1', 'person-1'], ['Pessoa 3', 'person-3'], ['Pessoa 2', 'person-2']] as const) {
+      await group.getByRole('button', { name }).click()
+      await active(id)
+      await expect(page.locator(`[data-scene="${id}"] [data-layer="motion"][data-loaded]`)).toHaveCount(1, { timeout: 10_000 })
+    }
+
+    // A escolha vale em Login, Cadastro e Recuperação (o painel da marca não remonta).
+    await group.getByRole('button', { name: 'Pessoa 1' }).click()
+    await page.keyboard.press('Escape')
+    await page.getByRole('link', { name: 'Criar conta' }).click()
+    await expect(page).toHaveURL(/\/cadastro/)
+    await active('person-1')
+
+    // Padrão devolve a cena de cada tela (Cadastro: Person 2).
+    await page.getByRole('button', { name: /^Demo/ }).click()
+    await page.getByRole('group', { name: 'Fundo da tela' }).getByRole('button', { name: 'Padrão' }).click()
+    await active('person-2')
+  })
+
+  test('Automático troca o fundo sozinho a cada X segundos, em ordem, nas 3 telas', async ({ page }) => {
+    await page.clock.install()
+    await page.goto('/entrar?demo')
+    const active = (id: string) => expect(page.locator(`[data-scene="${id}"]`)).toHaveAttribute('data-active', 'true')
+    await active('person-4')
+
+    await page.getByRole('button', { name: /^Demo/ }).click()
+    const group = page.getByRole('group', { name: 'Fundo da tela' })
+    await group.getByRole('button', { name: 'Automático' }).click()
+    await group.getByRole('group', { name: 'Trocar a cada' }).getByRole('button', { name: '5 s' }).click()
+    await active('person-4') // começa pela cena de agora, sem pulo
+
+    await page.clock.runFor(5_500)
+    await active('person-1')
+    await expect(group.getByRole('button', { name: 'Pessoa 1' })).toHaveAttribute('aria-current', 'true')
+    await page.clock.runFor(5_000)
+    await active('person-2')
+    await page.clock.runFor(5_000)
+    await active('person-3')
+
+    // Continua ao navegar para outra tela (o painel da marca não remonta) e Padrão para o rodízio.
+    await page.keyboard.press('Escape')
+    await page.getByRole('link', { name: 'Criar conta' }).click({ force: true })
+    await expect(page).toHaveURL(/\/cadastro/)
+    await page.clock.runFor(5_000)
+    await active('person-4')
+    await page.getByRole('button', { name: /^Demo/ }).click()
+    await page.getByRole('group', { name: 'Fundo da tela' }).getByRole('button', { name: 'Padrão' }).click()
+    await active('person-2')
+    await page.clock.runFor(20_000)
+    await active('person-2')
+  })
+
+  test('o guia arrasta com o mouse, não sai da janela e a posição vale ao navegar', async ({ page }) => {
+    await page.goto('/entrar?demo')
+    const grip = page.getByRole('button', { name: 'Mover guia' })
+    const root = grip.locator('xpath=ancestor::div[contains(@class, "root")][1]')
+    const before = (await root.boundingBox())!
+    const handle = (await grip.boundingBox())!
+
+    await page.mouse.move(handle.x + handle.width / 2, handle.y + handle.height / 2)
+    await page.mouse.down()
+    await page.mouse.move(handle.x + 500, handle.y + 300, { steps: 8 })
+    await page.mouse.up()
+    const moved = (await root.boundingBox())!
+    expect(moved.x).toBeGreaterThan(before.x + 400)
+    expect(moved.y).toBeGreaterThan(before.y + 250)
+
+    // Arrastar para fora da janela: o guia para na borda, inteiro à vista.
+    const grabbed = (await grip.boundingBox())!
+    await page.mouse.move(grabbed.x + grabbed.width / 2, grabbed.y + grabbed.height / 2)
+    await page.mouse.down()
+    await page.mouse.move(5000, 5000, { steps: 6 })
+    await page.mouse.up()
+    const edge = (await root.boundingBox())!
+    expect(edge.x + edge.width).toBeLessThanOrEqual(1440)
+    expect(edge.y + edge.height).toBeLessThanOrEqual(1024)
+
+    // Com o painel aberto no canto de baixo, ele sobe sozinho para caber inteiro.
+    await page.getByRole('button', { name: /^Demo/ }).click()
+    await expect(page.getByRole('region', { name: 'Guia de demonstração' })).toBeVisible()
+    await expect.poll(async () => {
+      const box = (await root.boundingBox())!
+      return box.y + box.height <= 1024 && box.y >= 0
+    }).toBe(true)
+
+    // A posição vale ao navegar entre as telas (o guia é o mesmo).
+    const placed = (await root.boundingBox())!
+    await page.keyboard.press('Escape')
+    await page.getByRole('link', { name: 'Criar conta' }).click({ force: true })
+    await expect(page).toHaveURL(/\/cadastro/)
+    await page.reload()
+    const afterReload = (await root.boundingBox())!
+    expect(Math.abs(afterReload.x - placed.x)).toBeLessThan(2)
+  })
+
+  test('sem ?demo não existe escolha de fundo (a interface do produto fica limpa)', async ({ page }) => {
+    await page.goto('/entrar')
+    await expect(page.getByRole('button', { name: /^Demo/ })).toHaveCount(0)
+    await expect(page.locator('[data-scene="person-4"]')).toHaveAttribute('data-active', 'true')
   })
 
   test('com "reduzir movimento" só a cena e a personagem (sem animação)', async ({ browser }) => {
@@ -200,8 +308,9 @@ test.describe('ilustração', () => {
     await page.goto('/entrar')
     await page.waitForLoadState('load')
     await page.waitForTimeout(800)
-    await expect(page.locator('[data-layer="plate"]')).toHaveCount(2)
-    await expect(page.locator('[data-layer="character"]')).toHaveCount(2)
+    // Uma cena e uma personagem por quadro do Figma (Person 1 a 4).
+    await expect(page.locator('[data-layer="plate"]')).toHaveCount(4)
+    await expect(page.locator('[data-layer="character"]')).toHaveCount(4)
     await expect(page.locator('[data-layer="motion"]')).toHaveCount(0)
     await context.close()
   })

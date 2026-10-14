@@ -290,3 +290,138 @@
 .state[aria-current='true'] .extra {
   color: var(--text-brand-on-solid);
 }
+
+/* Escolha do fundo da tela: cada opção é a própria prévia (cena + personagem), com o nome por cima. */
+.bgList {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--component-xs);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.bg {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  padding: 0;
+  border: 2px solid var(--border-base-default);
+  border-radius: var(--radius-md);
+  background: var(--surface-base-muted);
+  color: inherit;
+}
+
+.bg:hover {
+  border-color: var(--border-brand-default);
+}
+
+.bg[aria-pressed='true'] {
+  border-color: var(--surface-brand-solid);
+  box-shadow: 0 0 0 2px var(--surface-brand-solid);
+}
+
+.bgThumb {
+  position: absolute;
+  inset: 0;
+  display: block;
+  overflow: hidden;
+}
+
+.bgThumb img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Automático: as 4 pessoas lado a lado. */
+.bgMosaic {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template: 1fr 1fr / 1fr 1fr;
+  gap: 1px;
+  background: var(--surface-base-solid);
+}
+
+.bgMosaic .bgThumb {
+  position: relative;
+}
+
+.bgName,
+.bgLive {
+  position: absolute;
+  padding: 1px var(--component-xs);
+  border-radius: var(--radius-full);
+  background: var(--surface-base-solid);
+  color: var(--text-base-primary-inverse);
+  font: var(--type-label-sm-semibold);
+}
+
+.bgName {
+  left: var(--component-xs);
+  bottom: var(--component-xs);
+}
+
+.bg[aria-pressed='true'] .bgName {
+  background: var(--surface-brand-solid);
+  color: var(--text-brand-on-solid);
+}
+
+/* No Automático: a pessoa que está na tela agora. */
+.bgLive {
+  top: var(--component-xs);
+  right: var(--component-xs);
+  background: var(--surface-brand-solid);
+  color: var(--text-brand-on-solid);
+  font: var(--type-body-xs-regular);
+}
+
+.bgEvery {
+  align-self: center;
+  font: var(--type-label-sm-semibold);
+}
+
+.row[aria-label='Trocar a cada'] .state[aria-pressed='true'] {
+  border-color: var(--surface-brand-solid);
+  background: var(--surface-brand-solid);
+  color: var(--text-brand-on-solid);
+}
+
+/* Alça para arrastar o guia (a barra e o cabeçalho do painel também "pegam"). */
+.grip {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 28px;
+  height: 36px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: transparent;
+  color: inherit;
+  font-size: 18px;
+  line-height: 1;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+
+.grip:hover {
+  background: var(--surface-base-inactive);
+}
+
+.grip:active,
+.header[data-draggable]:active {
+  cursor: grabbing;
+}
+
+.header[data-draggable] {
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}

@@ -3,8 +3,9 @@ import type { CSSProperties } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
 import { useFitScale } from '@/hooks/useFitScale'
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion'
-import { SCENES, sceneForPath } from '@/features/auth/scenes'
+import { SCENES } from '@/features/auth/scenes'
 import type { Scene } from '@/features/auth/scenes'
+import { useActiveScene } from '@/features/demo/backdrop'
 import styles from './AuthShell.module.css'
 
 const SCENE_LIST = Object.values(SCENES)
@@ -28,7 +29,8 @@ function preload(src: string): Promise<void> {
 export function AuthShell() {
   const fit = useFitScale()
   const location = useLocation()
-  const active = sceneForPath(location.pathname)
+  // Na demonstração o guia pode fixar o fundo (Person 1 a 4) ou trocá-lo sozinho; sem isso, cada tela usa o seu.
+  const active = useActiveScene(location.pathname)
 
   return (
     <div className={styles.viewport} style={{ '--fit': fit } as CSSProperties}>

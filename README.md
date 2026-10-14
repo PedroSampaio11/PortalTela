@@ -22,7 +22,7 @@ Para parar: `Ctrl + C` no terminal.
 ## Como apresentar
 
 1. Abra **http://localhost:5180/entrar?demo**.
-2. Clique no botão **Demo** (canto inferior esquerdo).
+2. Clique no botão **Demo** (canto superior esquerdo).
 3. Escolha um estado na lista e ele abre na hora, ou use **Próximo** / **Anterior**.
 4. Para ver tudo em sequência, clique em **Passeio automático** (um estado a cada 3,5 s). O painel **recolhe sozinho** e sobra
    só uma barra compacta no canto superior esquerdo (anterior, pausar, próximo).
@@ -30,6 +30,8 @@ Para parar: `Ctrl + C` no terminal.
 | Quero | Faça |
 |---|---|
 | Ver **qualquer** estado direto (erro, bloqueio, carregando...) | Botão **Demo**, escolha o estado |
+| Trocar o **fundo** (Pessoa 1 a 4 do Figma) | Botão **Demo** > **Fundo da tela**: cada opção mostra a prévia. **Padrão**: cada tela usa o seu. **Automático**: passa pelas 4 pessoas sozinho a cada 5, 10 ou 20 s. Vale para as 3 telas |
+| Tirar o guia da frente | Arraste pela alça **⠿** ou pelo título do painel (ou foque a alça e use as setas; **Shift** anda mais; **Home** ou duplo clique voltam ao canto) |
 | Passar de um para o próximo | **Alt + →** (voltar: **Alt + ←**) |
 | Ver todos sozinhos | **Passeio automático** (o painel recolhe e fica só a barra) |
 | Apresentar só com a tela, sem o guia por cima | **Ocultar** (ou o × da barra); **Alt + D** mostra de novo |
@@ -99,7 +101,7 @@ Na primeira vez que for rodar o `test:e2e`: `npx playwright install chromium`.
 | `src/features/auth` | Os fluxos (`login`, `recovery`, `signup`), etapas compartilhadas (`shared/`), o backend simulado (`mock/`) e as validações. |
 | `src/features/demo` | O guia de demonstração e o registro dos 49 estados (`scenarios.ts`). |
 | `e2e/` | Testes em navegador real. |
-| `design-source/` | Camadas originais do Figma de cada cena (`plate`, `character`, `animation.gif`). |
+| `design-source/` | Camadas originais do Figma de cada cena, uma pasta por quadro (`person-1` a `person-4`: `plate`, `character`, `animation.gif`). |
 | `docs/decisions.md` | Decisões técnicas e pendências para o design. |
 
 Estilo: CSS Modules + variáveis CSS (sem Tailwind). Os nomes das propriedades dos componentes espelham as variants do Figma.

@@ -1,11 +1,23 @@
 import { useEffect, useId, useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { MOCK_USER, NETWORK_FAILURE_EMAIL } from '@/features/auth/mock/authApi'
 import { CODE_RULES } from '@/features/auth/mock/codeFlow'
+import { SCENES, SCENE_IDS, sceneForPath } from '@/features/auth/scenes'
+import type { SceneId } from '@/features/auth/scenes'
+import {
+  BACKDROP_INTERVALS,
+  setBackdropChoice,
+  setBackdropInterval,
+  startAutoBackdrop,
+  useActiveScene,
+  useBackdropChoice,
+  useBackdropInterval,
+} from './backdrop'
 import { isDemoEnabled, isFastMode, resetDemo, setFastMode } from './demoMode'
 import { DEMO_STATES, FLOW_LABELS, demoHref } from './scenarios'
 import type { DemoFlow } from './scenarios'
 import { useDemoStateId } from './useDemoScenario'
+import { useDraggable } from './useDraggable'
 import styles from './DemoGuide.module.css'
 
 interface Scenario {
@@ -24,6 +36,18 @@ const SCENARIOS: Scenario[] = [
 ]
 
 const FLOWS: readonly DemoFlow[] = ['login', 'signup', 'recovery']
+/** "Pessoa 1 a 4": os quadros Person 1 a 4 do Figma. */
+const backdropLabel = (id: SceneId) => `Pessoa ${id.replace('person-', '')}`
+
+/** A prévia de um fundo: a cena com a personagem por cima, como aparece na tela. */
+function BackdropThumb({ id }: { id: SceneId }) {
+  return (
+    <span className={styles.bgThumb} aria-hidden="true">
+      <img src={SCENES[id].plate} alt="" loading="lazy" decoding="async" />
+      <img src={SCENES[id].character} alt="" loading="lazy" decoding="async" />
+    </span>
+  )
+}
 const TOUR_STEP_MS = 3500
 
 /**
@@ -43,7 +67,13 @@ export function DemoGuide() {
   const headingRef = useRef<HTMLHeadingElement>(null)
   const triggerRef = useRef<HTMLButtonElement>(null)
   const activeRef = useRef<HTMLButtonElement>(null)
+  const rootRef = useRef<HTMLDivElement>(null)
+  const drag = useDraggable(rootRef, enabled && !hidden)
 
+  const { pathname } = useLocation()
+  const backdrop = useBackdropChoice()
+  const backdropEvery = useBackdropInterval()
+  const liveScene = useActiveScene(pathname)
   const currentId = useDemoStateId()
   const index = currentId ? DEMO_STATES.findIndex((item) => item.id === currentId) : -1
   const current = index >= 0 ? DEMO_STATES[index] : undefined
@@ -132,10 +162,10 @@ export function DemoGuide() {
   }
 
   return (
-    <div className={styles.root}>
+    <div ref={rootRef} className={styles.root} style={drag.position ? { left: drag.position.left, top: drag.position.top } : undefined}>
       {open && (
         <section id={panelId} className={styles.panel} aria-labelledby={`${panelId}-title`}>
-          <div className={styles.header}>
+          <div className={styles.header} data-draggable {...drag.handleProps}>
             <h2 id={`${panelId}-title`} ref={headingRef} tabIndex={-1} className={styles.title}>
               Guia de demonstração
             </h2>
@@ -181,6 +211,73 @@ export function DemoGuide() {
               </button>
             </div>
             <p className={styles.hint}>Atalhos: Alt + ← / → navega; Alt + D mostra ou oculta o guia. Os estados abrem fixos; os campos e botões continuam funcionando.</p>
+          </div>
+
+          <div className={styles.group} role="group" aria-labelledby={`${panelId}-bg`}>
+            <h3 id={`${panelId}-bg`} className={styles.groupTitle}>
+              Fundo da tela
+            </h3>
+            <ul className={styles.bgList}>
+              <li>
+                <button type="button" className={styles.bg} aria-pressed={backdrop === null} onClick={() => setBackdropChoice(null)}>
+                  <BackdropThumb id={sceneForPath(pathname)} />
+                  <span className={styles.bgName}>Padrão</span>
+                </button>
+              </li>
+              <li>
+                <button
+                  type="button"
+                  className={styles.bg}
+                  aria-pressed={backdrop === 'auto'}
+                  onClick={() => {
+                    if (backdrop !== 'auto') startAutoBackdrop(liveScene)
+                  }}
+                >
+                  <span className={styles.bgMosaic} aria-hidden="true">
+                    {SCENE_IDS.map((id) => (
+                      <BackdropThumb key={id} id={id} />
+                    ))}
+                  </span>
+                  <span className={styles.bgName}>Automático</span>
+                </button>
+              </li>
+              {SCENE_IDS.map((id) => (
+                <li key={id}>
+                  <button
+                    type="button"
+                    className={styles.bg}
+                    aria-pressed={backdrop === id}
+                    aria-current={backdrop === 'auto' && liveScene === id ? 'true' : undefined}
+                    onClick={() => setBackdropChoice(id)}
+                  >
+                    <BackdropThumb id={id} />
+                    <span className={styles.bgName}>{backdropLabel(id)}</span>
+                    {backdrop === 'auto' && liveScene === id && (
+                      <span className={styles.bgLive} aria-hidden="true">
+                        Agora
+                      </span>
+                    )}
+                  </button>
+                </li>
+              ))}
+            </ul>
+            {backdrop === 'auto' && (
+              <div className={styles.row} role="group" aria-label="Trocar a cada">
+                <span className={styles.bgEvery}>Trocar a cada</span>
+                {BACKDROP_INTERVALS.map((seconds) => (
+                  <button
+                    key={seconds}
+                    type="button"
+                    className={styles.state}
+                    aria-pressed={backdropEvery === seconds}
+                    onClick={() => setBackdropInterval(seconds)}
+                  >
+                    {seconds} s
+                  </button>
+                ))}
+              </div>
+            )}
+            <p className={styles.hint}>Vale para as 3 telas. Padrão: cada tela usa o seu fundo. Automático: passa pelas 4 pessoas sozinho.</p>
           </div>
 
           <div className={styles.states}>
@@ -239,6 +336,16 @@ export function DemoGuide() {
         </section>
       )}
       <div className={styles.bar} data-playing={playing || undefined}>
+        <button
+          type="button"
+          className={styles.grip}
+          data-grip
+          aria-label="Mover guia"
+          title="Arraste para mover o guia. Setas movem (Shift: mais rápido); Home ou duplo clique voltam ao canto."
+          {...drag.gripProps}
+        >
+          ⠿
+        </button>
         <button
           ref={triggerRef}
           type="button"

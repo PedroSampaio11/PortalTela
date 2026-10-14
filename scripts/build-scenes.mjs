@@ -19,7 +19,8 @@ const SOURCE = join(root, 'design-source')
 const OUT = join(root, 'src/assets/images')
 mkdirSync(OUT, { recursive: true })
 
-const SCENES = ['login', 'signup']
+// Os nomes são os dos quadros do Figma (Person 1 a 4). A pasta de origem é design-source/<cena>/.
+const SCENES = ['person-1', 'person-2', 'person-3', 'person-4']
 const PAD = 2
 const FRAME_MS = 40
 const WEBP_QUALITY = 92
@@ -31,8 +32,14 @@ for (const scene of SCENES) {
   const dir = join(SOURCE, scene)
   const started = Date.now()
 
-  // 1) Cena e personagem estáticas.
-  await sharp(join(dir, 'plate.png')).removeAlpha().webp({ quality: 98, effort: 6, smartSubsample: true }).toFile(join(OUT, `${scene}-plate.webp`))
+  // 1) Cena e personagem estáticas. A personagem manda no enquadramento; se a cena vier com outro tamanho
+  //    (Person 3: 1440 x 1026), ela entra como no Figma (object-cover, centralizada): corte, sem reamostrar.
+  const character = await sharp(join(dir, 'character.png')).metadata()
+  await sharp(join(dir, 'plate.png'))
+    .removeAlpha()
+    .resize(character.width, character.height, { fit: 'cover', position: 'centre' })
+    .webp({ quality: 98, effort: 6, smartSubsample: true })
+    .toFile(join(OUT, `${scene}-plate.webp`))
   await sharp(join(dir, 'character.png')).webp({ lossless: true, effort: 6 }).toFile(join(OUT, `${scene}-character.webp`))
 
   // 2) Animação: todos os quadros do GIF, recortados na caixa que cobre a figura em qualquer quadro.

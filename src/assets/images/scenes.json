@@ -1,17 +1,17 @@
 {
-  "login": {
+  "person-1": {
     "width": 1440,
     "height": 1024,
     "frames": 97,
     "frameMs": 40,
     "motion": {
-      "x": 198,
-      "y": 127,
-      "width": 333,
-      "height": 732
+      "x": 46,
+      "y": 252,
+      "width": 696,
+      "height": 609
     }
   },
-  "signup": {
+  "person-2": {
     "width": 1469,
     "height": 1071,
     "frames": 97,
@@ -21,6 +21,30 @@
       "y": 232,
       "width": 424,
       "height": 519
+    }
+  },
+  "person-3": {
+    "width": 1440,
+    "height": 1024,
+    "frames": 97,
+    "frameMs": 40,
+    "motion": {
+      "x": 155,
+      "y": 215,
+      "width": 331,
+      "height": 646
+    }
+  },
+  "person-4": {
+    "width": 1440,
+    "height": 1024,
+    "frames": 97,
+    "frameMs": 40,
+    "motion": {
+      "x": 198,
+      "y": 127,
+      "width": 333,
+      "height": 732
     }
   }
 }
