@@ -36,9 +36,10 @@ for (const [name, value] of Object.entries(source.motion)) declare(name, value, 
 // Tipografia: Text Styles do Figma. Em código viram o shorthand `font` (um token por estilo).
 light.push(`  --font-display: '${source.fonts.display} Variable', '${source.fonts.display}', system-ui, sans-serif;`)
 light.push(`  --font-body: '${source.fonts.body} Variable', '${source.fonts.body}', system-ui, sans-serif;`)
+light.push(`  --font-serif: '${source.fonts.serif} Variable', '${source.fonts.serif}', Georgia, serif;`)
 for (const [name, t] of Object.entries(source.typography)) {
   if (name.startsWith('$')) continue
-  const family = t.family === 'display' ? 'var(--font-display)' : 'var(--font-body)'
+  const family = `var(--font-${t.family})`
   declare(`type/${name}`, `${t.weight} ${t.size}px/${t.lineHeight} ${family}`, light)
 }
 for (const [name, value] of Object.entries(source.elevation)) {

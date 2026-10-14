@@ -17,6 +17,7 @@
     "images": "node scripts/build-scenes.mjs"
   },
   "dependencies": {
+    "@fontsource-variable/lora": "^5.3.0",
     "@fontsource-variable/manrope": "^5.3.0",
     "@fontsource-variable/plus-jakarta-sans": "^5.3.0",
     "@hookform/resolvers": "^5.9.1",

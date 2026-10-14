@@ -118,12 +118,12 @@
 
 .caption {
   width: 100%;
-  font: var(--type-title-sm-semibold);
+  font: var(--type-brand-panel-caption);
 }
 
 .captionDescription {
   width: 100%;
-  font: var(--type-body-sm-regular);
+  font: var(--type-brand-panel-caption-description);
 }
 
 .cardColumn {

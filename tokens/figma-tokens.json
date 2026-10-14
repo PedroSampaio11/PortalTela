@@ -416,6 +416,18 @@
       "weight": 500,
       "size": 16,
       "lineHeight": 1.5
+    },
+    "brand-panel/caption": {
+      "family": "serif",
+      "weight": 600,
+      "size": 28,
+      "lineHeight": 1.3
+    },
+    "brand-panel/caption-description": {
+      "family": "body",
+      "weight": 300,
+      "size": 20,
+      "lineHeight": 1.5
     }
   },
   "elevation": {
@@ -426,6 +438,7 @@
   },
   "fonts": {
     "display": "Plus Jakarta Sans",
-    "body": "Manrope"
+    "body": "Manrope",
+    "serif": "Lora"
   }
 }
