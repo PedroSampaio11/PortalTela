@@ -1,0 +1,37 @@
+/* Link (DS 2935:63839). No Figma o Hover é idêntico ao Default (sem sublinhado): fiel ao DS. */
+.link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--component-2xs);
+  color: var(--text-brand-link);
+  text-decoration: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.link[data-size='sm'] {
+  font: var(--type-body-sm-medium);
+}
+
+.link[data-size='md'] {
+  font: var(--type-body-md-medium);
+}
+
+.action {
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+/* Focus: anel de 1.4px a 4px (Figma: caixa 10.8px maior). */
+.link:focus-visible {
+  outline: var(--border-width-base-focus) solid var(--border-brand-default);
+  outline-offset: 4px;
+}
+
+.link[aria-disabled='true'],
+.link:disabled {
+  color: var(--text-base-disabled);
+  cursor: not-allowed;
+  pointer-events: none;
+}

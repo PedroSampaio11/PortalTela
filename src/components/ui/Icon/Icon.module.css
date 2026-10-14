@@ -1,0 +1,17 @@
+.icon {
+  display: inline-block;
+  flex: none;
+  background-color: currentColor;
+  -webkit-mask: var(--icon-mask) center / 100% 100% no-repeat;
+  mask: var(--icon-mask) center / 100% 100% no-repeat;
+}
+
+.spin {
+  animation: spin 1s var(--easing-linear) infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

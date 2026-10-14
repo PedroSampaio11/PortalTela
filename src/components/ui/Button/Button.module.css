@@ -1,0 +1,97 @@
+/* Button (DS 2935:61417). Estados lidos do Component Set: Style x State. */
+.button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--component-xs);
+  width: 100%;
+  min-height: var(--control-height-xl);
+  padding: var(--component-md) var(--component-xl);
+  border: var(--border-width-base-default) solid transparent;
+  border-radius: var(--radius-full);
+  font: var(--type-label-lg-semibold);
+  white-space: nowrap;
+  text-decoration: none;
+  transition:
+    background-color var(--duration-component-base) var(--easing-entrance),
+    border-color var(--duration-component-base) var(--easing-entrance),
+    color var(--duration-component-base) var(--easing-entrance);
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Slot do ícone: 11x11 com o ícone de 24 centrado por cima (como no Figma); 18x18 no loading. */
+.slot {
+  position: relative;
+  flex: none;
+  width: 11px;
+  height: 11px;
+}
+
+.slot[data-loading] {
+  width: 18px;
+  height: 18px;
+}
+
+.icon {
+  position: absolute;
+  top: -6.5px;
+  left: -6.5px;
+}
+
+.slot[data-loading] .icon {
+  top: -3px;
+  left: -3px;
+}
+
+/* Anel de foco: 1.4px a 4px da borda (Focus no Figma: caixa 10.8px maior). */
+.button:focus-visible {
+  outline: var(--border-width-base-focus) solid var(--border-brand-default);
+  outline-offset: 4px;
+}
+
+/* ---------- Outline ---------- */
+.button[data-variant='outline'] {
+  background: transparent;
+  border-color: var(--border-brand-default);
+  color: var(--text-brand-default);
+}
+
+.button[data-variant='outline']:hover:not([aria-disabled='true']),
+.button[data-variant='outline']:active:not([aria-disabled='true']) {
+  background: var(--surface-brand-default);
+}
+
+.button[data-variant='outline'][aria-disabled='true']:not([aria-busy='true']) {
+  border-color: var(--border-brand-disabled);
+  color: var(--text-brand-on-disabled);
+}
+
+/* ---------- Solid ---------- */
+.button[data-variant='solid'] {
+  background: var(--surface-brand-solid);
+  border-color: transparent;
+  color: var(--text-brand-on-solid);
+}
+
+.button[data-variant='solid']:hover:not([aria-disabled='true']) {
+  background: var(--surface-brand-hover);
+}
+
+.button[data-variant='solid']:active:not([aria-disabled='true']) {
+  background: var(--surface-brand-pressed);
+}
+
+.button[data-variant='solid'][aria-disabled='true']:not([aria-busy='true']) {
+  background: var(--surface-brand-disabled);
+  color: var(--text-brand-on-disabled);
+}
+
+/* Disabled e loading não reagem ao ponteiro (descrição do componente no Figma). */
+.button[aria-disabled='true'] {
+  cursor: not-allowed;
+}
+
+.button[aria-busy='true'] {
+  cursor: progress;
+}

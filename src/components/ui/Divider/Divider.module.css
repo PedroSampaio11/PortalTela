@@ -1,0 +1,6 @@
+.divider {
+  flex: 1 1 0;
+  min-width: 1px;
+  height: var(--border-width-base-default);
+  background: var(--border-base-muted);
+}
