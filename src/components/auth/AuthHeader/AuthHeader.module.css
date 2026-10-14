@@ -1,0 +1,25 @@
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--component-xs);
+  align-items: center;
+  width: 100%;
+  text-align: center;
+  overflow-wrap: break-word;
+}
+
+.title {
+  width: 100%;
+  font: var(--type-title-2xl-bold);
+  color: var(--text-base-primary);
+}
+
+.title:focus {
+  outline: none;
+}
+
+.description {
+  width: 100%;
+  font: var(--type-body-md-regular);
+  color: var(--text-base-secondary);
+}

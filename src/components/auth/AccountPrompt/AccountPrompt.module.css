@@ -1,0 +1,14 @@
+.prompt {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--component-2xs);
+  min-width: var(--row-min-width);
+  width: 100%;
+}
+
+.text {
+  font: var(--type-body-sm-regular);
+  color: var(--text-base-secondary);
+  white-space: nowrap;
+}

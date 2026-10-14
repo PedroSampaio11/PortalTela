@@ -1,0 +1,132 @@
+/* AuthLayout (DS 3265:56657): 1440 x 1024 no Figma, mínimo 1024 (breakpoint/desktop). */
+.layout {
+  position: relative;
+  display: flex;
+  min-width: var(--breakpoint-desktop);
+  min-height: 100vh;
+  min-height: 100dvh;
+  overflow: hidden;
+  background: var(--surface-brand-solid);
+}
+
+.illustration {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  max-width: none;
+}
+
+/* O recorte animado entra com fade quando termina de carregar. */
+.layer + .layer {
+  opacity: 0;
+  transition: opacity var(--duration-layout-slow) var(--easing-entrance);
+}
+
+.layer + .layer[data-loaded] {
+  opacity: 1;
+}
+
+.brandPanel {
+  position: relative;
+  display: flex;
+  flex: 1 1 0;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--component-xs);
+  min-width: 0;
+  padding: var(--layout-sm);
+  text-align: center;
+  color: var(--text-base-primary-inverse);
+}
+
+.caption {
+  width: 100%;
+  font: var(--type-title-sm-semibold);
+}
+
+.captionDescription {
+  width: 100%;
+  font: var(--type-body-sm-regular);
+}
+
+.cardColumn {
+  position: relative;
+  display: flex;
+  flex: none;
+  width: 720px;
+  padding: var(--component-xl) var(--component-xl) var(--component-xl) 0;
+}
+
+.card {
+  display: flex;
+  flex: 1 1 0;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--component-xs);
+  min-width: 0;
+  padding: var(--component-xl) var(--layout-sm);
+  background: var(--surface-base-elevated);
+  border-radius: var(--radius-xl);
+}
+
+.topBar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--component-md);
+  width: 100%;
+}
+
+.topRow {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.slot {
+  display: flex;
+  flex: none;
+  width: var(--control-touch-min);
+  height: var(--control-touch-min);
+}
+
+.logoSlot {
+  display: flex;
+  flex: 1 1 0;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+}
+
+.body {
+  display: flex;
+  flex: 1 1 0;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 0;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--component-lg);
+  min-width: var(--row-min-width);
+  width: 100%;
+}
+
+.copyright {
+  width: 100%;
+  font: var(--type-body-xs-regular);
+  color: var(--text-base-secondary);
+  text-align: center;
+}
