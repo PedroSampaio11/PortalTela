@@ -110,3 +110,29 @@ test('cadastro: dados com erros, preenchido e código bloqueado', async ({ page 
   await expect(page.getByText(/Muitas tentativas/)).toBeVisible({ timeout: 10_000 })
   await audit(page, 'cadastro código bloqueado')
 })
+
+test('estados do navegador de estados e o próprio guia aberto', async ({ page }) => {
+  const ids = [
+    'login.validation',
+    'login.blocked',
+    'login.social-error',
+    'recovery.email-error',
+    'recovery.code-error',
+    'recovery.code-expired',
+    'recovery.code-success',
+    'recovery.password-mismatch',
+    'signup.details-error',
+    'signup.code-blocked',
+    'signup.password-valid',
+    'signup.done',
+  ]
+  for (const id of ids) {
+    const route = id.startsWith('login') ? '/entrar' : id.startsWith('signup') ? '/cadastro' : '/recuperar-senha'
+    await page.goto(`${route}?demo&state=${id}`)
+    await page.locator('h1').first().waitFor()
+    await audit(page, id)
+  }
+  await page.getByRole('button', { name: /^Demo/ }).click()
+  await expect(page.getByRole('region', { name: 'Guia de demonstração' })).toBeVisible()
+  await audit(page, 'guia de demonstração aberto')
+})

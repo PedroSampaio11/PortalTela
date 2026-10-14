@@ -4,8 +4,10 @@ import { AccountPrompt } from '@/components/auth/AccountPrompt'
 import { AuthLayout } from '@/components/auth/AuthLayout'
 import { AuthResult } from '@/components/auth/AuthResult'
 import { StepIndicator } from '@/components/auth/StepIndicator'
+import { getSignUpScenario } from '@/features/demo/scenarios'
+import { useDemoScenario } from '@/features/demo/useDemoScenario'
 import { signupIllustration } from '../illustrations'
-import { registerAccount } from '../mock/authApi'
+import { newLockEnd, registerAccount } from '../mock/authApi'
 import { signupCodeFlow } from '../mock/codeFlow'
 import { CodeStep } from '../shared/CodeStep'
 import { PasswordStep } from '../shared/PasswordStep'
@@ -23,28 +25,36 @@ const autoAdvanceMs = (step: Step): number | undefined =>
 
 export function SignUpPage() {
   const navigate = useNavigate()
-  const [step, setStep] = useState<Step>('details')
-  const [details, setDetails] = useState({ name: '', email: '' })
-  const [lockedUntil, setLockedUntil] = useState<number | null>(null)
+  const scenario = useDemoScenario('signup', getSignUpScenario)
+  const frozen = scenario !== undefined // estado da demonstração: nada avança sozinho
+
+  const [step, setStep] = useState<Step>(scenario?.step ?? 'details')
+  const [details, setDetails] = useState(
+    scenario && scenario.step !== 'details' ? { name: 'Ana Souza', email: scenario.email } : { name: '', email: '' },
+  )
+  const [lockedUntil, setLockedUntil] = useState<number | null>(
+    scenario?.code?.phase === 'blocked' ? newLockEnd() : null,
+  )
 
   const goHome = useCallback(() => navigate('/', { replace: true }), [navigate])
 
   useEffect(() => {
     const delay = autoAdvanceMs(step)
-    if (delay === undefined) return
+    if (delay === undefined || frozen) return
     const id = window.setTimeout(() => {
       if (step === 'emailSent') setStep('code')
       else if (step === 'codeConfirmed') setStep('password')
       else goHome()
     }, delay)
     return () => window.clearTimeout(id)
-  }, [step, goHome])
+  }, [step, frozen, goHome])
 
   const progress =
     step === 'details' ? <StepIndicator total={3} current={1} /> : step === 'code' ? <StepIndicator total={3} current={2} /> : step === 'password' ? <StepIndicator total={3} current={3} /> : undefined
 
   return (
     <AuthLayout
+      stepKey={step}
       illustration={signupIllustration}
       progress={progress}
       backTo={step === 'details' ? '/entrar' : undefined}
@@ -54,6 +64,7 @@ export function SignUpPage() {
       {step === 'details' && (
         <DetailsStep
           defaults={details}
+          scenario={scenario?.details}
           onSent={(next, lock) => {
             setDetails(next)
             setLockedUntil(lock)
@@ -67,6 +78,7 @@ export function SignUpPage() {
         <CodeStep
           flow="signup"
           codeFlow={signupCodeFlow}
+          scenario={scenario?.code}
           email={details.email}
           initialLockedUntil={lockedUntil}
           onVerified={() => setStep('codeConfirmed')}
@@ -83,6 +95,7 @@ export function SignUpPage() {
           passwordPlaceholder="insira a senha"
           confirmLabel="Confirmar senha"
           confirmPlaceholder="insira a senha novamente"
+          scenario={scenario?.password}
           submitLabel="Criar conta"
           loadingLabel="Criando"
           onSubmit={(password) => registerAccount({ name: details.name, email: details.email, password })}

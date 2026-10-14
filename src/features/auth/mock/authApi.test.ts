@@ -32,8 +32,8 @@ describe('authApi (mock)', () => {
   })
 
   it('entra com as credenciais corretas (e-mail sem diferenciar maiúsculas) e cria a sessão', async () => {
-    const session = await login({ ...ok, email: '  ANA.Souza@Email.com ' })
-    expect(session).toMatchObject({ name: 'Ana Souza', provider: 'password' })
+    const session = await login({ ...ok, email: '  TEST@Gmail.com ' })
+    expect(session).toMatchObject({ name: 'Teste', provider: 'password' })
     expect(getSession()?.email).toBe(MOCK_USER.email)
     logout()
     expect(getSession()).toBeNull()

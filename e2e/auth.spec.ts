@@ -79,10 +79,10 @@ test.describe('código de verificação', () => {
 test.describe('login', () => {
   test('entra com a conta de demonstração e a sessão aparece na tela inicial', async ({ page }) => {
     await page.goto('/entrar')
-    await page.getByLabel('E-mail').fill('ana.souza@email.com')
-    await page.getByLabel('Senha', { exact: true }).fill('Senha@123')
+    await page.getByLabel('E-mail').fill('test@gmail.com')
+    await page.getByLabel('Senha', { exact: true }).fill('test@2026')
     await page.getByRole('button', { name: 'Entrar', exact: true }).click()
-    await expect(page.getByRole('heading', { name: 'Olá, Ana.' })).toBeVisible({ timeout: 10_000 })
+    await expect(page.getByRole('heading', { name: 'Olá, Teste.' })).toBeVisible({ timeout: 10_000 })
   })
 
   test('ordem de tabulação segue a leitura da tela', async ({ page }) => {

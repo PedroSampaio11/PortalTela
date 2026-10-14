@@ -1,9 +1,10 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { AuthHeader } from '@/components/auth/AuthHeader'
-import { Button, InlineMessage, TextField } from '@/components/ui'
+import { Button, InlineMessage, InlineMessageSlot, TextField } from '@/components/ui'
+import type { EmailScenario } from '@/features/demo/scenarios'
 import { NETWORK_FAILURE_EMAIL } from '../mock/authApi'
 import { recoveryCodeFlow } from '../mock/codeFlow'
 import { emailSchema } from '../schemas'
@@ -14,19 +15,26 @@ type Values = z.infer<typeof schema>
 
 interface EmailStepProps {
   defaultEmail: string
+  /** Estado forçado pela demonstração. */
+  scenario?: EmailScenario
   onSent: (email: string, lockedUntil: number | null) => void
 }
 
 /** Etapa 1 de 3 (Figma `ForgotPasswordForm`: Default, Error, Loading). */
-export function EmailStep({ defaultEmail, onSent }: EmailStepProps) {
-  const [submitting, setSubmitting] = useState(false)
+export function EmailStep({ defaultEmail, scenario, onSent }: EmailStepProps) {
+  const [submitting, setSubmitting] = useState(scenario?.submitting ?? false)
   const [failed, setFailed] = useState(false)
 
   const {
     register,
     handleSubmit,
+    trigger,
     formState: { errors, isValid },
-  } = useForm<Values>({ resolver: zodResolver(schema), mode: 'onTouched', defaultValues: { email: defaultEmail } })
+  } = useForm<Values>({ resolver: zodResolver(schema), mode: 'onTouched', defaultValues: { email: scenario?.email ?? defaultEmail } })
+
+  useEffect(() => {
+    if (scenario?.validate) void trigger()
+  }, [scenario?.validate, trigger])
 
   const submit = handleSubmit(async ({ email }) => {
     setSubmitting(true)
@@ -47,7 +55,7 @@ export function EmailStep({ defaultEmail, onSent }: EmailStepProps) {
         title="Esqueceu sua senha?"
         description="Informe o e-mail da sua conta. Se ele estiver cadastrado, enviaremos um código para criar uma nova senha."
       />
-      {failed && <InlineMessage hasIcon>Não conseguimos enviar o código agora. Verifique sua conexão e tente de novo.</InlineMessage>}
+      <InlineMessageSlot hasIcon message={failed && 'Não conseguimos enviar o código agora. Verifique sua conexão e tente de novo.'} />
       <form className={styles.form} onSubmit={submit} noValidate aria-busy={submitting || undefined}>
         <TextField
           label="E-mail"

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { SocialProvider } from '@/components/auth/SocialLogin'
-import { AuthApiError, getLoginLock, login, loginWithProvider } from '../mock/authApi'
+import { AuthApiError, config, getLoginLock, login, loginWithProvider } from '../mock/authApi'
 import type { LoginValues } from '../schemas'
 
 /**
@@ -10,7 +10,7 @@ import type { LoginValues } from '../schemas'
 export type LoginPhase = 'idle' | 'submitting' | 'error' | 'blocked' | 'socialLoading' | 'socialError'
 export type LoginErrorKind = 'credentials' | 'network'
 
-interface LoginState {
+export interface LoginState {
   phase: LoginPhase
   errorKind: LoginErrorKind
   lockedUntil: number | null
@@ -19,17 +19,24 @@ interface LoginState {
 
 const IDLE: LoginState = { phase: 'idle', errorKind: 'credentials', lockedUntil: null, provider: null }
 
-function initialState(): LoginState {
+function initialState(forced?: Partial<LoginState>): LoginState {
+  // Estado pedido pelo navegador de estados da demonstração (congelado: nada resolve sozinho).
+  if (forced?.phase) {
+    const lockedUntil = forced.phase === 'blocked' ? Date.now() + config.lockMs : null
+    return { ...IDLE, ...forced, lockedUntil }
+  }
   const lockedUntil = getLoginLock()
   return lockedUntil ? { ...IDLE, phase: 'blocked', lockedUntil } : IDLE
 }
 
 interface UseLoginOptions {
   onSuccess: () => void
+  /** Estado inicial forçado (só a demonstração usa). */
+  forced?: Partial<LoginState>
 }
 
-export function useLogin({ onSuccess }: UseLoginOptions) {
-  const [state, setState] = useState<LoginState>(initialState)
+export function useLogin({ onSuccess, forced }: UseLoginOptions) {
+  const [state, setState] = useState<LoginState>(() => initialState(forced))
   const mounted = useRef(true)
   const phaseRef = useRef(state.phase)
 

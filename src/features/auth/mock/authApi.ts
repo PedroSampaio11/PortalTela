@@ -5,13 +5,14 @@ import { readJson, remove, writeJson } from './storage'
  * (para demonstrar cada estado do Figma) com latência realista.
  *
  * Cenários de login:
- *  - ana.souza@email.com + Senha@123 ........ sucesso
+ *  - test@gmail.com + test@2026 ............. sucesso (conta principal da demonstração)
  *  - qualquer outra combinação .............. credenciais incorretas; a 3ª errada bloqueia por 15 min
  *  - erro@email.com ......................... falha de rede (qualquer senha)
  *  - Google ................................. sucesso | Apple ................... falha do provedor
  */
-export const MOCK_USER = { name: 'Ana Souza', email: 'ana.souza@email.com', password: 'Senha@123' } as const
+export const MOCK_USER = { name: 'Teste', email: 'test@gmail.com', password: 'test@2026' } as const
 export const MAX_LOGIN_ATTEMPTS = 3
+/** Duração padrão do bloqueio (15 min). O valor em uso é `config.lockMs` (o modo rápido da demonstração encurta). */
 export const LOCK_DURATION_MS = 15 * 60 * 1000
 export const NETWORK_FAILURE_EMAIL = 'erro@email.com'
 
@@ -91,7 +92,7 @@ interface LoginState {
 }
 
 /** Latência simulada. Em testes (`delay: 0`) resolve na hora. */
-export const config = { latency: { min: 800, max: 1400 }, socialLatency: 1600 }
+export const config = { latency: { min: 800, max: 1400 }, socialLatency: 1600, lockMs: LOCK_DURATION_MS }
 
 function wait(ms: number): Promise<void> {
   return new Promise((resolve) => window.setTimeout(resolve, ms))
@@ -106,6 +107,11 @@ function readLoginState(): LoginState {
   const state = readJson<LoginState>(LOGIN_STATE_KEY, { attempts: 0, lockedUntil: null })
   if (state.lockedUntil !== null && state.lockedUntil <= Date.now()) return { attempts: 0, lockedUntil: null }
   return state
+}
+
+/** Fim de um bloqueio que começa agora (usado pelos estados forçados da demonstração). */
+export function newLockEnd(): number {
+  return Date.now() + config.lockMs
 }
 
 /** Fim do bloqueio, se existir um ativo. Usado para abrir a tela direto no estado Blocked. */
@@ -132,7 +138,7 @@ export async function login(input: { email: string; password: string; remember: 
   const attempts = state.attempts + 1
   if (attempts >= MAX_LOGIN_ATTEMPTS) {
     // Alinhado ao segundo: a contagem regressiva (que tica a cada 1s) começa exatamente em 15:00.
-    const lockedUntil = Math.floor((Date.now() + LOCK_DURATION_MS) / 1000) * 1000
+    const lockedUntil = Math.floor((Date.now() + config.lockMs) / 1000) * 1000
     writeJson(LOGIN_STATE_KEY, { attempts, lockedUntil })
     throw new AuthApiError('LOCKED', { lockedUntil })
   }

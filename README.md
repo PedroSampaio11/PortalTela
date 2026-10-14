@@ -31,23 +31,29 @@ Nomes de props espelham as variants do Figma (`variant` é o `Style`, pois `styl
 
 ## Apresentando (guia de demonstração)
 
-Abra qualquer tela com `?demo` na URL (ex.: `/entrar?demo`). Aparece um botão **Demo** no canto inferior
-esquerdo, com as credenciais e códigos copiáveis, atalhos para os 3 fluxos, **modo rápido** (respostas em ~0,2 s
-e reenvio em 3 s) e **Reiniciar demonstração** (zera bloqueios, contas criadas e sessão). Sem `?demo` a interface
-é exatamente a do produto.
+Abra qualquer tela com `?demo` na URL (ex.: `/entrar?demo`). Aparece o botão **Demo** no canto inferior esquerdo.
+Sem `?demo` a interface é exatamente a do produto.
+
+- **Navegador de estados:** os **49 estados** (45 do Figma + 4 que o produto real teria) abrem direto, sem precisar
+  provocá-los. Cada um tem link: `/entrar?demo&state=login.blocked`, `/cadastro?demo&state=signup.code-expired`,
+  `/recuperar-senha?demo&state=recovery.password-mismatch`.
+- **Percorrer tudo:** botões **Anterior / Próximo**, atalho **Alt + ← / →** e **Passeio automático** (um estado a cada 3,5 s).
+- Os estados abrem fixos (nada avança sozinho) para dar tempo de olhar, mas campos e botões continuam funcionando.
+- **Modo rápido:** respostas em ~0,2 s, reenvio em 3 s e bloqueio de 20 s (a demonstração nunca fica presa).
+- **Reiniciar demonstração:** zera bloqueios, contas criadas e sessão.
 
 ## Cenários de demonstração (mock)
 
 | Ação | Resultado |
 |---|---|
-| `ana.souza@email.com` + `Senha@123` | Entra |
+| `test@gmail.com` + `test@2026` | Entra (conta principal) |
 | Qualquer outra combinação | "E-mail ou senha incorretos"; a **3ª** errada bloqueia por 15 min (persiste ao recarregar) |
 | `erro@email.com` (qualquer senha) | Falha de rede (erro do sistema, não do usuário) |
 | Botão **Google** | Entra após 1,6 s |
 | Botão **Apple** | Falha do provedor após 1,6 s |
-| Código de verificação `123456` | Correto |
-| Código `000000` | Expirado |
-| Qualquer outro código | Incorreto; o 3º erro bloqueia por 15 min |
+| Código de verificação `123456` | Correto (segue o fluxo) |
+| Código `111111` (ou qualquer outro) | Incorreto; o 3º erro bloqueia (15 min; 20 s no modo rápido) |
+| Código `000000` | Expirado (libera o reenvio) |
 | `erro@email.com` no cadastro ou na recuperação | Falha de rede ao enviar o código |
 
 ## Decisões e pendências para o design

@@ -19,6 +19,11 @@
 13. **Guia de demonstração só com `?demo`** (e preso à sessão): a interface padrão fica idêntica ao Figma.
 14. **Acessibilidade medida, não presumida:** o E2E roda o axe-core (WCAG 2.1 A/AA) em ~20 telas e estados (padrão, erros, bloqueios, carregando, resultados). Zero violações.
 
+15. **Layout que cresce, nunca transborda.** O corpo do cartão tinha `flex: 1 1 0; min-height: 0`, e com helper text ou mensagem o conteúdo subia por cima do logo em janelas baixas. Agora é `flex: 1 0 auto`: se faltar altura, o cartão cresce e a página rola. Um teste abre os 49 estados em 3 tamanhos de janela (1440x1024, 1280x720, 1024x768) e confere que nada se sobrepõe nem vaza.
+16. **Mensagens e helper texts entram e saem com animação de altura** (`Reveal`): o item recolhido ocupa zero de verdade (margem negativa igual ao gap do pai), sem "pulo" de layout. Cada etapa entra com fade e leve subida.
+17. **Navegador de estados (`?demo&state=...`)** para percorrer tudo numa apresentação sem provocar bloqueios nem decorar códigos. Estados abrem congelados; `Alt + ← / →` e passeio automático.
+18. **Conta principal da demonstração:** `test@gmail.com` / `test@2026`. Códigos: `123456` correto, `111111` (qualquer outro) incorreto, `000000` expirado.
+
 ## Pendências para o design (achados na leitura do Figma)
 
 - `LoginFilledScreen` mostra o botão "Entrar" cinza com os dois campos preenchidos; nos frames Loading e Error o botão está ativo. Implementado: ativo.

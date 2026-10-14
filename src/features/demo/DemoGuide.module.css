@@ -28,8 +28,11 @@
 .panel {
   display: flex;
   flex-direction: column;
-  gap: var(--component-sm);
-  width: 380px;
+  gap: var(--component-md);
+  width: 440px;
+  /* Nunca passa da tela: rola por dentro, sem empurrar nada da página. */
+  max-height: calc(100dvh - 96px);
+  overflow-y: auto;
   padding: var(--component-lg);
   background: var(--surface-base-elevated);
   border-radius: var(--radius-lg);
@@ -126,4 +129,114 @@
   background: var(--surface-status-danger);
   color: var(--text-status-danger);
   font: var(--type-label-sm-semibold);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--component-sm);
+}
+
+.close {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: var(--control-touch-min);
+  height: var(--control-touch-min);
+  border: 0;
+  border-radius: var(--radius-full);
+  background: transparent;
+  font-size: 24px;
+  line-height: 1;
+}
+
+.close:hover {
+  background: var(--surface-base-muted);
+}
+
+.tour {
+  display: flex;
+  flex-direction: column;
+  gap: var(--component-xs);
+  padding: var(--component-md);
+  border-radius: var(--radius-md);
+  background: var(--surface-base-muted);
+}
+
+.status {
+  font: var(--type-body-sm-regular);
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--component-xs);
+}
+
+.chipSolid {
+  min-height: var(--control-touch-min);
+  padding: 0 var(--component-md);
+  border: 0;
+  border-radius: var(--radius-full);
+  background: var(--surface-brand-solid);
+  color: var(--text-brand-on-solid);
+  font: var(--type-label-sm-semibold);
+}
+
+.chipSolid:hover {
+  background: var(--surface-brand-hover);
+}
+
+.states {
+  display: flex;
+  flex-direction: column;
+  gap: var(--component-md);
+}
+
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--component-xs);
+}
+
+.groupTitle {
+  font: var(--type-label-sm-semibold);
+  color: var(--text-base-secondary);
+}
+
+.stateList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--component-xs);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.state {
+  min-height: 32px;
+  padding: 0 var(--component-sm);
+  border: var(--border-width-base-default) solid var(--border-base-default);
+  border-radius: var(--radius-full);
+  background: var(--surface-base-default);
+  font: var(--type-body-sm-regular);
+}
+
+.state:hover {
+  border-color: var(--border-brand-default);
+}
+
+.state[aria-current='true'] {
+  border-color: var(--surface-brand-solid);
+  background: var(--surface-brand-solid);
+  color: var(--text-brand-on-solid);
+}
+
+.extra {
+  color: var(--text-brand-default);
+}
+
+.state[aria-current='true'] .extra {
+  color: var(--text-brand-on-solid);
 }

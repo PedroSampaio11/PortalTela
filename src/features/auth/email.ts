@@ -1,5 +1,5 @@
 /**
- * Mascara o e-mail como no Figma: `ana.souza@email.com` vira `*****ouza@email.com`
+ * Mascara o e-mail como no Figma: `ana.souza@email.com` vira `*****ouza@email.com` (e `test@gmail.com` vira `***t@gmail.com`)
  * (mantém os 4 últimos caracteres do nome e o domínio).
  */
 export function maskEmail(email: string): string {

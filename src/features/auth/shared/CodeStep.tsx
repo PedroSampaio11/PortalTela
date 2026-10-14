@@ -3,11 +3,13 @@ import type { FormEvent, ReactNode } from 'react'
 import { AuthHeader } from '@/components/auth/AuthHeader'
 import { ResendCode } from '@/components/auth/ResendCode'
 import type { ResendState } from '@/components/auth/ResendCode'
-import { Button, InlineMessage } from '@/components/ui'
+import { Button, InlineMessageSlot } from '@/components/ui'
 import { CodeSlots } from '@/components/ui/CodeSlots'
 import { useCountdown } from '@/hooks/useCountdown'
 import { maskEmail } from '../email'
 import { timing } from '../timing'
+import type { CodeScenario } from '@/features/demo/scenarios'
+import { newLockEnd } from '../mock/authApi'
 import { CODE_RULES, CodeFlowError, resendCooldown } from '../mock/codeFlow'
 import type { createCodeFlow } from '../mock/codeFlow'
 import styles from './steps.module.css'
@@ -21,6 +23,8 @@ interface CodeStepProps {
   codeFlow: ReturnType<typeof createCodeFlow>
   /** Rodapé do formulário (SignUp: "Já tem uma conta? Entrar"). */
   footer?: ReactNode
+  /** Estado forçado pela demonstração (vem congelado: nada avança sozinho). */
+  scenario?: CodeScenario
   email: string
   initialLockedUntil: number | null
   onVerified: () => void
@@ -29,14 +33,17 @@ interface CodeStepProps {
 }
 
 /** Etapa 2 de 3 (Figma `VerifyCodeForm`, Flow=Recovery ou SignUp). */
-export function CodeStep({ flow, codeFlow, footer, email, initialLockedUntil, onVerified, onChangeEmail }: CodeStepProps) {
+export function CodeStep({ flow, codeFlow, footer, scenario, email, initialLockedUntil, onVerified, onChangeEmail }: CodeStepProps) {
   const inputRef = useRef<HTMLInputElement>(null)
-  const [value, setValue] = useState('')
-  const [phase, setPhase] = useState<Phase>(initialLockedUntil ? 'blocked' : 'idle')
-  const [lockedUntil, setLockedUntil] = useState<number | null>(initialLockedUntil)
-  const [attemptsLeft, setAttemptsLeft] = useState<number>(CODE_RULES.maxAttempts)
-  const [shakeKey, setShakeKey] = useState(0)
-  const [showSent, setShowSent] = useState(false)
+  const frozen = scenario !== undefined
+  const [value, setValue] = useState(scenario?.value ?? '')
+  const [phase, setPhase] = useState<Phase>(scenario?.phase ?? (initialLockedUntil ? 'blocked' : 'idle'))
+  const [lockedUntil, setLockedUntil] = useState<number | null>(
+    scenario?.phase === 'blocked' ? newLockEnd() : initialLockedUntil,
+  )
+  const [attemptsLeft, setAttemptsLeft] = useState<number>(scenario?.attemptsLeft ?? CODE_RULES.maxAttempts)
+  const [shakeKey, setShakeKey] = useState(scenario?.phase === 'error' ? 1 : 0)
+  const [showSent, setShowSent] = useState(scenario?.sent ?? false)
   const [resending, setResending] = useState(false)
   const [cooldownKey, setCooldownKey] = useState(0)
   const [exhausted, setExhausted] = useState(() => codeFlow.resendsLeft() === 0)
@@ -56,20 +63,20 @@ export function CodeStep({ flow, codeFlow, footer, email, initialLockedUntil, on
 
   // "Código reenviado" some depois de um tempo e a contagem recomeça.
   useEffect(() => {
-    if (!showSent) return
+    if (!showSent || frozen) return
     const id = window.setTimeout(() => {
       setShowSent(false)
       setCooldownKey((key) => key + 1)
     }, 4000)
     return () => window.clearTimeout(id)
-  }, [showSent])
+  }, [showSent, frozen])
 
   // Sucesso: a barra com o check aparece e, em seguida, vem a tela "Código confirmado".
   useEffect(() => {
-    if (phase !== 'success') return
+    if (phase !== 'success' || frozen) return
     const id = window.setTimeout(onVerified, timing.successBar)
     return () => window.clearTimeout(id)
-  }, [phase, onVerified])
+  }, [phase, frozen, onVerified])
 
   const blocked = phase === 'blocked'
   const expired = phase === 'expired'
@@ -129,6 +136,15 @@ export function CodeStep({ flow, codeFlow, footer, email, initialLockedUntil, on
     if (complete && !busy && !blocked) void verify()
   }
 
+  const notice =
+    phase === 'error'
+      ? `Código incorreto. Você tem mais ${attemptsLeft} ${attemptsLeft === 1 ? 'tentativa' : 'tentativas'}.`
+      : expired
+        ? 'Esse código expirou. Peça um novo.'
+        : blocked
+          ? 'Muitas tentativas. Por segurança, novas tentativas foram bloqueadas. Tente de novo mais tarde.'
+          : null
+
   const description =
     blocked && flow === 'recovery'
       ? 'Se o e-mail estiver cadastrado, enviamos um código de 6 dígitos. Ele vale por 10 minutos.'
@@ -137,21 +153,7 @@ export function CodeStep({ flow, codeFlow, footer, email, initialLockedUntil, on
   return (
     <>
       <AuthHeader title="Digite o código de verificação" description={description} />
-      {phase === 'error' && (
-        <InlineMessage hasIcon>
-          Código incorreto. Você tem mais {attemptsLeft} {attemptsLeft === 1 ? 'tentativa' : 'tentativas'}.
-        </InlineMessage>
-      )}
-      {expired && (
-        <InlineMessage tone="warning" hasIcon>
-          Esse código expirou. Peça um novo.
-        </InlineMessage>
-      )}
-      {blocked && (
-        <InlineMessage hasIcon>
-          Muitas tentativas. Por segurança, novas tentativas foram bloqueadas. Tente de novo mais tarde.
-        </InlineMessage>
-      )}
+      <InlineMessageSlot hasIcon tone={expired ? 'warning' : 'error'} message={notice} />
       <form className={styles.form} onSubmit={handleSubmit} noValidate aria-busy={busy || undefined}>
         <CodeSlots
           label="Código de verificação de 6 dígitos"

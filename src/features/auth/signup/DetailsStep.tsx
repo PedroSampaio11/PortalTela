@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
@@ -6,8 +6,9 @@ import { AccountPrompt } from '@/components/auth/AccountPrompt'
 import { AuthHeader } from '@/components/auth/AuthHeader'
 import { ConsentRow } from '@/components/auth/ConsentRow'
 import { SocialLogin } from '@/components/auth/SocialLogin'
-import { Button, InlineMessage, TextField } from '@/components/ui'
+import { Button, InlineMessageSlot, TextField } from '@/components/ui'
 import { useSocialAuth } from '@/hooks/useSocialAuth'
+import type { DetailsScenario } from '@/features/demo/scenarios'
 import { NETWORK_FAILURE_EMAIL } from '../mock/authApi'
 import { signupCodeFlow } from '../mock/codeFlow'
 import styles from '../shared/steps.module.css'
@@ -25,24 +26,32 @@ export type SignUpDetails = z.infer<typeof schema>
 
 interface DetailsStepProps {
   defaults: { name: string; email: string }
+  /** Estado forçado pela demonstração. */
+  scenario?: DetailsScenario
   onSent: (details: { name: string; email: string }, lockedUntil: number | null) => void
   onSocialSuccess: () => void
 }
 
 /** Etapa 1 de 3 (Figma `SignUpForm`: Default, Error, Loading). Nunca diz se o e-mail já existe. */
-export function DetailsStep({ defaults, onSent, onSocialSuccess }: DetailsStepProps) {
-  const [submitting, setSubmitting] = useState(false)
+export function DetailsStep({ defaults, scenario, onSent, onSocialSuccess }: DetailsStepProps) {
+  const [submitting, setSubmitting] = useState(scenario?.submitting ?? false)
   const [failed, setFailed] = useState(false)
   const social = useSocialAuth(onSocialSuccess)
 
   const {
     register,
     handleSubmit,
+    trigger,
     formState: { errors, isValid, submitCount },
   } = useForm<SignUpDetails>({
     resolver: zodResolver(schema),
     mode: 'onTouched',
-    defaultValues: { name: defaults.name, email: defaults.email, terms: false },
+    shouldFocusError: !scenario,
+    defaultValues: {
+      name: scenario?.name ?? defaults.name,
+      email: scenario?.email ?? defaults.email,
+      terms: scenario?.terms ?? false,
+    },
   })
 
   const submit = handleSubmit(async ({ name, email }) => {
@@ -58,10 +67,16 @@ export function DetailsStep({ defaults, onSent, onSocialSuccess }: DetailsStepPr
     }
   })
 
+  // Estado "erros" da demonstração: valida tudo de uma vez (sem foco e sem enviar nada).
+  const showErrors = Boolean(scenario?.validate)
+  useEffect(() => {
+    if (showErrors) void trigger()
+  }, [showErrors, trigger])
+
   return (
     <>
       <AuthHeader title="Crie sua conta" description="Comece com seu nome e e-mail. Enviaremos um código para confirmar." />
-      {failed && <InlineMessage hasIcon>Não conseguimos enviar o código agora. Verifique sua conexão e tente de novo.</InlineMessage>}
+      <InlineMessageSlot hasIcon message={failed && 'Não conseguimos enviar o código agora. Verifique sua conexão e tente de novo.'} />
       <form className={styles.form} onSubmit={submit} noValidate aria-busy={submitting || undefined}>
         <div className={styles.fields}>
           <TextField
@@ -89,7 +104,7 @@ export function DetailsStep({ defaults, onSent, onSocialSuccess }: DetailsStepPr
           />
         </div>
         {/* O erro dos termos só aparece depois de tentar enviar (não ao tabular pela caixa). */}
-        <ConsentRow errorMessage={submitCount > 0 ? errors.terms?.message : undefined} {...register('terms')} />
+        <ConsentRow errorMessage={submitCount > 0 || showErrors ? errors.terms?.message : undefined} {...register('terms')} />
         <Button
           type="submit"
           variant="outline"

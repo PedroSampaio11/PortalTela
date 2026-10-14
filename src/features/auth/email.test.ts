@@ -6,6 +6,7 @@ describe('maskEmail', () => {
   })
 
   it('mantém o domínio e protege nomes curtos', () => {
+    expect(maskEmail('test@gmail.com')).toBe('***t@gmail.com')
     expect(maskEmail('jo@x.com')).toBe('*o@x.com')
     expect(maskEmail('  Maria.Clara@portaltela.com ')).toBe('*******lara@portaltela.com')
   })

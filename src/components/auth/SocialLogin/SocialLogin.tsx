@@ -1,5 +1,5 @@
 import { Divider } from '@/components/ui/Divider'
-import { InlineMessage } from '@/components/ui/InlineMessage'
+import { InlineMessageSlot } from '@/components/ui/InlineMessage'
 import { SocialButton } from '@/components/ui/SocialButton'
 import styles from './SocialLogin.module.css'
 
@@ -44,7 +44,7 @@ export function SocialLogin({ loadingProvider = null, error, disabled, onProvide
           aria-label={busy ? 'Conectando com a Apple' : 'Continuar com a Apple'}
         />
       </div>
-      {error && <InlineMessage>{error}</InlineMessage>}
+      <InlineMessageSlot message={error} gap="var(--component-md)" />
     </div>
   )
 }

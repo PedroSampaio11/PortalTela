@@ -26,6 +26,8 @@ interface AuthLayoutProps {
   progress?: ReactNode
   /** Figma `Copyright`. */
   copyright?: string
+  /** Muda a cada etapa: o conteúdo remonta e entra com animação. */
+  stepKey?: string
   children: ReactNode
 }
 
@@ -42,6 +44,7 @@ export function AuthLayout({
   backLabel = 'Voltar',
   progress,
   copyright = '© 2026 Portal Tela. Todos os direitos reservados',
+  stepKey,
   children,
 }: AuthLayoutProps) {
   return (
@@ -70,7 +73,9 @@ export function AuthLayout({
             {progress}
           </header>
           <main className={styles.body} id="conteudo">
-            <div className={styles.content}>{children}</div>
+            <div key={stepKey} className={styles.content}>
+              {children}
+            </div>
           </main>
           <p className={styles.copyright}>{copyright}</p>
         </div>

@@ -4,8 +4,8 @@ import { recoveryCodeFlow, resendCooldown, signupCodeFlow } from '@/features/aut
 const DEMO_KEY = 'portaltela.demo'
 const FAST_KEY = 'portaltela.demo.fast'
 
-const NORMAL = { latency: { min: 800, max: 1400 }, socialLatency: 1600, cooldown: 30 }
-const FAST = { latency: { min: 150, max: 300 }, socialLatency: 500, cooldown: 3 }
+const NORMAL = { latency: { min: 800, max: 1400 }, socialLatency: 1600, cooldown: 30, lockMs: 15 * 60 * 1000 }
+const FAST = { latency: { min: 150, max: 300 }, socialLatency: 500, cooldown: 3, lockMs: 20 * 1000 }
 
 function read(key: string): boolean {
   try {
@@ -34,12 +34,13 @@ export function isFastMode(): boolean {
   return read(FAST_KEY)
 }
 
-/** Modo rápido: respostas em ~0,2 s, social em 0,5 s e reenvio liberado em 3 s (útil ao vivo). */
+/** Modo rápido: respostas em ~0,2 s, social em 0,5 s, reenvio em 3 s e bloqueio de 20 s (nunca prende a demonstração). */
 export function setFastMode(on: boolean): void {
   write(FAST_KEY, on)
   const preset = on ? FAST : NORMAL
   config.latency = { ...preset.latency }
   config.socialLatency = preset.socialLatency
+  config.lockMs = preset.lockMs
   resendCooldown.seconds = preset.cooldown
 }
 

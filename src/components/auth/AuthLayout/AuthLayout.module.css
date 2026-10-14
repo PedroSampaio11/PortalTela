@@ -108,12 +108,14 @@
 
 .body {
   display: flex;
-  flex: 1 1 0;
+  /* O corpo NUNCA encolhe abaixo do conteúdo: se faltar altura, o cartão cresce (a página rola).
+     Antes era `flex: 1 1 0` com `min-height: 0`, e o conteúdo transbordava por cima do logo. */
+  flex: 1 0 auto;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   width: 100%;
-  min-height: 0;
+  padding: var(--component-md) 0;
 }
 
 .content {
@@ -122,6 +124,14 @@
   gap: var(--component-lg);
   min-width: var(--row-min-width);
   width: 100%;
+  animation: step-enter var(--duration-layout-base) var(--easing-entrance) both;
+}
+
+@keyframes step-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
 }
 
 .copyright {

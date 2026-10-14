@@ -4,9 +4,9 @@ import { readJson, remove, writeJson } from './storage'
 /**
  * Código de verificação por e-mail (recuperação e cadastro usam as mesmas regras, estados separados).
  *
- *  - 123456 ........... código correto
+ *  - 123456 ........... código correto (segue o fluxo)
  *  - 000000 ........... código expirado (10 min), para demonstrar o estado
- *  - qualquer outro ... incorreto; a 3ª tentativa errada bloqueia por 15 min
+ *  - qualquer outro ... incorreto (ex.: 111111); a 3ª tentativa errada bloqueia (15 min; 20 s no modo rápido)
  *  - reenvio: 30 s de espera entre pedidos e no máximo 3 reenvios
  */
 export const CODE_RULES = {
@@ -98,7 +98,7 @@ export function createCodeFlow(flow: string) {
       const attempts = state.attempts + 1
       if (attempts >= CODE_RULES.maxAttempts) {
         // Alinhado ao segundo, como no bloqueio do login.
-        const lockedUntil = Math.floor((Date.now() + CODE_RULES.lockMs) / 1000) * 1000
+        const lockedUntil = Math.floor((Date.now() + config.lockMs) / 1000) * 1000
         writeJson(key, { ...state, attempts, lockedUntil })
         throw new CodeFlowError('LOCKED', { lockedUntil })
       }

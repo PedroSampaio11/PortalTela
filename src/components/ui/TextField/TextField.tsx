@@ -1,6 +1,8 @@
 import { useId } from 'react'
 import type { InputHTMLAttributes, ReactNode, Ref } from 'react'
+import { useRetained } from '@/hooks/useRetained'
 import { cx } from '@/lib/cx'
+import { Reveal } from '../Reveal'
 import styles from './TextField.module.css'
 
 export interface TextFieldProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'size'> {
@@ -31,6 +33,7 @@ export function TextField({
   const autoId = useId()
   const inputId = id ?? autoId
   const helperId = helperText ? `${inputId}-helper` : undefined
+  const retainedHelper = useRetained(helperText)
 
   return (
     <div className={cx(styles.root, className)} data-status={status} data-disabled={disabled || undefined}>
@@ -50,11 +53,11 @@ export function TextField({
         {trailing}
         <span className={styles.ring} aria-hidden="true" />
       </div>
-      {helperText && (
-        <p id={helperId} className={styles.helper} aria-live="polite">
-          {helperText}
+      <Reveal open={Boolean(helperText)} gap="var(--component-xs)">
+        <p id={`${inputId}-helper`} className={styles.helper} aria-live="polite">
+          {retainedHelper}
         </p>
-      )}
+      </Reveal>
     </div>
   )
 }

@@ -3,6 +3,7 @@ import type { FormEvent } from 'react'
 import { AuthHeader } from '@/components/auth/AuthHeader'
 import { PasswordRequirements } from '@/components/auth/PasswordRequirements'
 import { Button, PasswordField } from '@/components/ui'
+import type { PasswordScenario } from '@/features/demo/scenarios'
 import { simulateLatency } from '../mock/authApi'
 import { evaluatePassword } from '../passwordRules'
 import styles from './steps.module.css'
@@ -21,6 +22,8 @@ interface PasswordStepProps {
   /** O que fazer com a senha escolhida (atualizar a conta ou criá-la). */
   onSubmit: (password: string) => void
   onDone: () => void
+  /** Estado forçado pela demonstração. */
+  scenario?: PasswordScenario
 }
 
 /** Etapa 3 de 3 (Figma `NewPasswordForm`: Default, Weak, Mismatch, Valid, Loading), para os dois fluxos. */
@@ -35,12 +38,13 @@ export function PasswordStep({
   loadingLabel,
   onSubmit,
   onDone,
+  scenario,
 }: PasswordStepProps) {
-  const [password, setPassword] = useState('')
-  const [confirm, setConfirm] = useState('')
-  const [confirmTouched, setConfirmTouched] = useState(false)
+  const [password, setPassword] = useState(scenario?.password ?? '')
+  const [confirm, setConfirm] = useState(scenario?.confirm ?? '')
+  const [confirmTouched, setConfirmTouched] = useState(scenario?.confirmTouched ?? false)
   const [attempted, setAttempted] = useState(false)
-  const [submitting, setSubmitting] = useState(false)
+  const [submitting, setSubmitting] = useState(scenario?.submitting ?? false)
   const passwordRef = useRef<HTMLInputElement>(null)
   const confirmRef = useRef<HTMLInputElement>(null)
 

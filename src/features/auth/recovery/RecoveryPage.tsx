@@ -3,10 +3,12 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { AuthLayout } from '@/components/auth/AuthLayout'
 import { AuthResult } from '@/components/auth/AuthResult'
 import { StepIndicator } from '@/components/auth/StepIndicator'
+import { getRecoveryScenario } from '@/features/demo/scenarios'
+import { useDemoScenario } from '@/features/demo/useDemoScenario'
 import { recoveryIllustration } from '../illustrations'
 import { timing } from '../timing'
 import { recoveryCodeFlow } from '../mock/codeFlow'
-import { updatePassword } from '../mock/authApi'
+import { newLockEnd, updatePassword } from '../mock/authApi'
 import { CodeStep } from '../shared/CodeStep'
 import { PasswordStep } from '../shared/PasswordStep'
 import { EmailStep } from './EmailStep'
@@ -26,28 +28,34 @@ export function RecoveryPage() {
   const location = useLocation()
   const prefill = (location.state as { email?: string } | null)?.email ?? ''
 
-  const [step, setStep] = useState<Step>('email')
-  const [email, setEmail] = useState(prefill)
-  const [lockedUntil, setLockedUntil] = useState<number | null>(null)
+  const scenario = useDemoScenario('recovery', getRecoveryScenario)
+  const frozen = scenario !== undefined // estado da demonstração: nada avança sozinho
+
+  const [step, setStep] = useState<Step>(scenario?.step ?? 'email')
+  const [email, setEmail] = useState(prefill || (scenario && scenario.step !== 'email' ? scenario.email : ''))
+  const [lockedUntil, setLockedUntil] = useState<number | null>(
+    scenario?.code?.phase === 'blocked' ? newLockEnd() : null,
+  )
 
   const goTo = useCallback((next: Step) => setStep(next), [])
 
   useEffect(() => {
     const delay = autoAdvanceMs(step)
-    if (delay === undefined) return
+    if (delay === undefined || frozen) return
     const id = window.setTimeout(() => {
       if (step === 'emailSent') goTo('code')
       else if (step === 'codeConfirmed') goTo('password')
       else navigate('/', { replace: true })
     }, delay)
     return () => window.clearTimeout(id)
-  }, [step, goTo, navigate])
+  }, [step, frozen, goTo, navigate])
 
   const progress =
     step === 'email' ? <StepIndicator total={3} current={1} /> : step === 'code' ? <StepIndicator total={3} current={2} /> : step === 'password' ? <StepIndicator total={3} current={3} /> : undefined
 
   return (
     <AuthLayout
+      stepKey={step}
       illustration={recoveryIllustration}
       progress={progress}
       backTo={step === 'email' ? '/entrar' : undefined}
@@ -57,6 +65,7 @@ export function RecoveryPage() {
       {step === 'email' && (
         <EmailStep
           defaultEmail={email}
+          scenario={scenario?.emailStep}
           onSent={(sentTo, lock) => {
             setEmail(sentTo)
             setLockedUntil(lock)
@@ -69,6 +78,7 @@ export function RecoveryPage() {
         <CodeStep
           flow="recovery"
           codeFlow={recoveryCodeFlow}
+          scenario={scenario?.code}
           email={email}
           initialLockedUntil={lockedUntil}
           onVerified={() => goTo('codeConfirmed')}
@@ -86,6 +96,7 @@ export function RecoveryPage() {
           passwordPlaceholder="mínimo de 8 caracteres"
           confirmLabel="Confirmar nova senha"
           confirmPlaceholder="repita a senha"
+          scenario={scenario?.password}
           submitLabel="Atualizar senha"
           onSubmit={(password) => updatePassword(email, password)}
           onDone={() => goTo('updated')}

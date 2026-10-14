@@ -77,7 +77,7 @@ describe('RecoveryPage', () => {
     renderRecovery()
     await goToCodeStep(user)
     expect(screen.getByText('Etapa 2 de 3')).toBeInTheDocument()
-    expect(screen.getByText('Enviamos um código de 6 dígitos para *****ouza@email.com')).toBeInTheDocument()
+    expect(screen.getByText('Enviamos um código de 6 dígitos para ***t@gmail.com')).toBeInTheDocument()
     expect(screen.getByText('00:01')).toHaveAttribute('aria-hidden', 'true')
     expect(verify()).toHaveAttribute('aria-disabled', 'true')
     expect(code()).toHaveFocus()
@@ -166,7 +166,7 @@ describe('RecoveryPage', () => {
     expect(getSession()?.email).toBe(MOCK_USER.email)
 
     // A senha nova passa a valer; a antiga deixa de valer.
-    await expect(login({ email: MOCK_USER.email, password: 'NovaSenha@2026', remember: false })).resolves.toMatchObject({ name: 'Ana Souza' })
+    await expect(login({ email: MOCK_USER.email, password: 'NovaSenha@2026', remember: false })).resolves.toMatchObject({ name: 'Teste' })
     await expect(login({ email: MOCK_USER.email, password: MOCK_USER.password, remember: false })).rejects.toMatchObject({ code: 'INVALID_CREDENTIALS' })
   })
 })

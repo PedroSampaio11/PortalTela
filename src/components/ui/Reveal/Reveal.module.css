@@ -1,0 +1,22 @@
+.reveal {
+  display: grid;
+  grid-template-rows: 0fr;
+  margin-top: calc(-1 * var(--reveal-gap));
+  opacity: 0;
+  transition:
+    grid-template-rows var(--duration-layout-base) var(--easing-standard),
+    margin-top var(--duration-layout-base) var(--easing-standard),
+    opacity var(--duration-component-slow) var(--easing-standard);
+}
+
+.reveal[data-open] {
+  grid-template-rows: 1fr;
+  margin-top: 0;
+  opacity: 1;
+}
+
+.inner {
+  min-height: 0;
+  /* Corta o conteúdo enquanto a altura anima de 0 a 1fr. */
+  overflow: hidden;
+}
