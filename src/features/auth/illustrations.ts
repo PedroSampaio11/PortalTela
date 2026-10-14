@@ -1,6 +1,8 @@
 import type { AuthIllustration } from '@/components/auth/AuthLayout'
 import loginStill from '@/assets/images/login-still.png'
 import loginAnimated from '@/assets/images/login-animated.gif'
+import recoveryStill from '@/assets/images/recovery-still.png'
+import recoveryAnimated from '@/assets/images/recovery-animated.gif'
 import signupStill from '@/assets/images/signup-still.png'
 import signupAnimated from '@/assets/images/signup-animated.gif'
 
@@ -11,3 +13,4 @@ import signupAnimated from '@/assets/images/signup-animated.gif'
  */
 export const loginIllustration: AuthIllustration = { still: loginStill, animated: loginAnimated }
 export const signupIllustration: AuthIllustration = { still: signupStill, animated: signupAnimated }
+export const recoveryIllustration: AuthIllustration = { still: recoveryStill, animated: recoveryAnimated }

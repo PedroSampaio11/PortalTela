@@ -1,0 +1,27 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--component-xs);
+  min-width: var(--row-min-width);
+  width: 100%;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--component-2xs);
+  white-space: nowrap;
+}
+
+.text {
+  font: var(--type-body-sm-regular);
+  color: var(--text-base-secondary);
+}
+
+.clock {
+  font: var(--type-body-sm-medium);
+  color: var(--text-base-primary);
+  font-variant-numeric: tabular-nums;
+}

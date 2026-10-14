@@ -9,12 +9,36 @@
 }
 
 .root[data-tone='error'] {
-  background: var(--surface-status-danger);
+  --tone-surface: var(--surface-status-danger);
+  --tone-text: var(--text-status-danger);
+  --tone-icon: var(--icon-status-danger);
+}
+
+.root[data-tone='info'] {
+  --tone-surface: var(--surface-status-info);
+  --tone-text: var(--text-status-info);
+  --tone-icon: var(--icon-status-info);
+}
+
+.root[data-tone='success'] {
+  --tone-surface: var(--surface-status-success);
+  --tone-text: var(--text-status-success);
+  --tone-icon: var(--icon-status-success);
+}
+
+.root[data-tone='warning'] {
+  --tone-surface: var(--surface-status-warning);
+  --tone-text: var(--text-status-warning);
+  --tone-icon: var(--icon-status-warning);
+}
+
+.root {
+  background: var(--tone-surface);
 }
 
 .icon {
   flex: none;
-  color: var(--icon-status-danger);
+  color: var(--tone-icon);
 }
 
 .text {
@@ -35,6 +59,6 @@
   font: var(--type-body-sm-regular);
 }
 
-.root[data-tone='error'] .message {
-  color: var(--text-status-danger);
+.message {
+  color: var(--tone-text);
 }

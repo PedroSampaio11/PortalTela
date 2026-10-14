@@ -37,6 +37,46 @@ export interface Session {
 
 const LOGIN_STATE_KEY = 'portaltela.mock.login'
 const SESSION_KEY = 'portaltela.session'
+const ACCOUNTS_KEY = 'portaltela.mock.accounts'
+
+interface Account {
+  name: string
+  password: string
+}
+
+/** Contas do mock: a de demonstração mais as criadas no cadastro ou alteradas na recuperação. */
+function readAccounts(): Record<string, Account> {
+  return {
+    [MOCK_USER.email]: { name: MOCK_USER.name, password: MOCK_USER.password },
+    ...readJson<Record<string, Account>>(ACCOUNTS_KEY, {}),
+  }
+}
+
+const normalizeEmail = (email: string) => email.trim().toLowerCase()
+
+export function accountExists(email: string): boolean {
+  return normalizeEmail(email) in readAccounts()
+}
+
+export function registerAccount(input: { name: string; email: string; password: string }): Session {
+  const email = normalizeEmail(input.email)
+  writeJson(ACCOUNTS_KEY, { ...readJson<Record<string, Account>>(ACCOUNTS_KEY, {}), [email]: { name: input.name, password: input.password } })
+  const session: Session = { name: input.name, email, provider: 'password' }
+  writeJson(SESSION_KEY, session)
+  return session
+}
+
+/** Troca a senha (recuperação). E-mail desconhecido não falha: a resposta nunca revela se a conta existe. */
+export function updatePassword(emailInput: string, password: string): Session | null {
+  const email = normalizeEmail(emailInput)
+  const account = readAccounts()[email]
+  if (!account) return null
+  writeJson(ACCOUNTS_KEY, { ...readJson<Record<string, Account>>(ACCOUNTS_KEY, {}), [email]: { ...account, password } })
+  remove(LOGIN_STATE_KEY)
+  const session: Session = { name: account.name, email, provider: 'password' }
+  writeJson(SESSION_KEY, session)
+  return session
+}
 
 interface LoginState {
   attempts: number
@@ -68,15 +108,16 @@ export function getLoginLock(): number | null {
 
 export async function login(input: { email: string; password: string; remember: boolean }): Promise<Session> {
   await wait(jitter())
-  const email = input.email.trim().toLowerCase()
+  const email = normalizeEmail(input.email)
   const state = readLoginState()
 
   if (state.lockedUntil !== null) throw new AuthApiError('LOCKED', { lockedUntil: state.lockedUntil })
   if (email === NETWORK_FAILURE_EMAIL) throw new AuthApiError('NETWORK')
 
-  if (email === MOCK_USER.email && input.password === MOCK_USER.password) {
+  const account = readAccounts()[email]
+  if (account && input.password === account.password) {
     remove(LOGIN_STATE_KEY)
-    const session: Session = { name: MOCK_USER.name, email: MOCK_USER.email, provider: 'password' }
+    const session: Session = { name: account.name, email, provider: 'password' }
     writeJson(SESSION_KEY, session)
     return session
   }
@@ -112,4 +153,9 @@ export function logout(): void {
 export function resetLoginMock(): void {
   remove(LOGIN_STATE_KEY)
   remove(SESSION_KEY)
+  remove(ACCOUNTS_KEY)
 }
+
+/** Exposto para o cadastro e a recuperação usarem a mesma latência simulada. */
+export const simulateLatency = (): Promise<void> => wait(jitter())
+export { wait as sleep }

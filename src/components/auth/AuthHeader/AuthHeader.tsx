@@ -19,7 +19,10 @@ export function AuthHeader({ title, description }: AuthHeaderProps) {
   const ref = useRef<HTMLHeadingElement>(null)
 
   useEffect(() => {
-    if (hasRendered) ref.current?.focus({ preventScroll: true })
+    // Se a etapa já pôs o foco num campo (ex.: primeira casa do código), não tira dele.
+    const active = document.activeElement
+    const fieldAlreadyFocused = active !== null && active !== document.body && active !== ref.current
+    if (hasRendered && !fieldAlreadyFocused) ref.current?.focus({ preventScroll: true })
     hasRendered = true
   }, [])
 

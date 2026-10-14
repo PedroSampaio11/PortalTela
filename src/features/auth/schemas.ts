@@ -5,7 +5,7 @@ export const emailSchema = z
   .string()
   .trim()
   .min(1, 'Informe seu e-mail.')
-  .pipe(z.email('Esse e-mail não parece válido. Use o formato nome@dominio.com.'))
+  .pipe(z.email('Digite um e-mail válido'))
 
 export const loginSchema = z.object({
   email: emailSchema,

@@ -1,5 +1,6 @@
 import { useEffect, useId, useRef } from 'react'
 import type { InputHTMLAttributes, ReactNode, Ref } from 'react'
+import { assignRef } from '@/lib/assignRef'
 import { cx } from '@/lib/cx'
 import { Icon } from '../Icon'
 import styles from './Checkbox.module.css'
@@ -24,8 +25,7 @@ export function Checkbox({ ref, label, indeterminate = false, className, id, ...
 
   function setRefs(node: HTMLInputElement | null) {
     innerRef.current = node
-    if (typeof ref === 'function') ref(node)
-    else if (ref) ref.current = node
+    assignRef(ref, node)
   }
 
   return (

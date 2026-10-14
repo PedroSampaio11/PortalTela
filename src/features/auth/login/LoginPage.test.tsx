@@ -56,11 +56,11 @@ describe('LoginPage', () => {
     const user = userEvent.setup()
     renderLogin()
     await user.type(email(), 'ana@')
-    expect(screen.queryByText(/não parece válido/)).not.toBeInTheDocument()
+    expect(screen.queryByText(/Digite um e-mail válido/)).not.toBeInTheDocument()
     await user.tab()
-    expect(await screen.findByText(/não parece válido/)).toBeInTheDocument()
+    expect(await screen.findByText(/Digite um e-mail válido/)).toBeInTheDocument()
     await user.type(email(), 'email.com')
-    await waitFor(() => expect(screen.queryByText(/não parece válido/)).not.toBeInTheDocument())
+    await waitFor(() => expect(screen.queryByText(/Digite um e-mail válido/)).not.toBeInTheDocument())
   })
 
   it('habilita o envio quando os dois campos estão válidos', async () => {

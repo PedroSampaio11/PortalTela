@@ -1,0 +1,52 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--component-lg);
+  width: 100%;
+  min-width: var(--row-min-width);
+  animation: enter var(--duration-layout-base) var(--easing-entrance) both;
+}
+
+.badge {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 100px;
+  height: 100px;
+  border-radius: var(--radius-full);
+  background: var(--surface-status-success);
+}
+
+.icon {
+  color: var(--icon-base-default);
+}
+
+.text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--component-xs);
+  width: 100%;
+  text-align: center;
+}
+
+.title {
+  font: var(--type-title-xl-bold);
+  color: var(--text-base-primary);
+}
+
+.title:focus {
+  outline: none;
+}
+
+.description {
+  font: var(--type-body-md-regular);
+  color: var(--text-base-secondary);
+}
+
+@keyframes enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+}

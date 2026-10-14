@@ -19,6 +19,8 @@ interface AuthLayoutProps {
   captionDescription?: string
   /** Rota do botão voltar (Figma `AuthTopBar` > `HasBack`). */
   backTo?: string
+  /** Voltar como ação (ex.: "Trocar e-mail" dentro do mesmo fluxo). */
+  onBack?: () => void
   backLabel?: string
   /** Faixa abaixo da barra superior, ex.: indicador de etapa (Figma `HasProgress`). */
   progress?: ReactNode
@@ -36,6 +38,7 @@ export function AuthLayout({
   caption = 'Acompanhe o que importa para você',
   captionDescription = 'Notícias, análises e conteúdos personalizados',
   backTo,
+  onBack,
   backLabel = 'Voltar',
   progress,
   copyright = '© 2026 Portal Tela. Todos os direitos reservados',
@@ -52,7 +55,13 @@ export function AuthLayout({
         <div className={styles.card}>
           <header className={styles.topBar}>
             <div className={styles.topRow}>
-              <div className={styles.slot}>{backTo && <NavButton to={backTo} label={backLabel} />}</div>
+              <div className={styles.slot}>
+                {backTo ? (
+                  <NavButton to={backTo} label={backLabel} />
+                ) : (
+                  onBack && <NavButton onClick={onBack} label={backLabel} />
+                )}
+              </div>
               <div className={styles.logoSlot}>
                 <Logo />
               </div>

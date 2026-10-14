@@ -1,0 +1,31 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: var(--component-xs);
+  width: 100%;
+}
+
+.label {
+  font: var(--type-body-sm-regular);
+  color: var(--text-base-secondary);
+}
+
+.steps {
+  display: flex;
+  gap: var(--component-xs);
+  width: 100%;
+}
+
+.step {
+  flex: 1 1 0;
+  min-width: 1px;
+  height: 4px;
+  border-radius: var(--radius-full);
+  /* Etapas futuras: o Figma renderiza em surface/brand/default (a descrição do componente cita base/muted). */
+  background: var(--surface-brand-default);
+  transition: background-color var(--duration-layout-base) var(--easing-entrance);
+}
+
+.step[data-done] {
+  background: var(--surface-brand-solid);
+}

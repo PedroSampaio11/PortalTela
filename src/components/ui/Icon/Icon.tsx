@@ -9,6 +9,13 @@ import loading03 from '@/assets/icons/loading-03.svg'
 import view from '@/assets/icons/view.svg'
 import viewOffSlash from '@/assets/icons/view-off-slash.svg'
 import apple from '@/assets/brand/apple.svg'
+import alert01 from '@/assets/icons/alert-01.svg'
+import checkCircle from '@/assets/icons/check-circle.svg'
+import checkmarkCircle16 from '@/assets/icons/checkmark-circle-16.svg'
+import checkmarkCircle36 from '@/assets/icons/checkmark-circle-36.svg'
+import circleDashed16 from '@/assets/icons/circle-dashed-16.svg'
+import informationCircle from '@/assets/icons/information-circle.svg'
+import tick02 from '@/assets/icons/tick-02.svg'
 import styles from './Icon.module.css'
 
 /** Ícones do DS (traço de 1.5px). Um arquivo por ícone, exportado do Figma sem edição. */
@@ -22,6 +29,13 @@ const ICONS = {
   view,
   'view-off-slash': viewOffSlash,
   apple,
+  'alert-01': alert01,
+  'check-circle': checkCircle,
+  'checkmark-circle-16': checkmarkCircle16,
+  'checkmark-circle-36': checkmarkCircle36,
+  'circle-dashed-16': circleDashed16,
+  'information-circle': informationCircle,
+  'tick-02': tick02,
 } as const
 
 export type IconName = keyof typeof ICONS

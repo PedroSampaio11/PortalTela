@@ -1,0 +1,211 @@
+/* CodeSlots / CodeSlot (DS 2935:59796 e 2935:59649), Size=lg: casa de 56 x 64. */
+.root {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+/* O input real cobre as casas: clique e toque focam; fica invisível, mas é o controle de verdade. */
+.input {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: transparent;
+  caret-color: transparent;
+  opacity: 0;
+  cursor: text;
+}
+
+.input:disabled {
+  cursor: not-allowed;
+}
+
+.slots {
+  position: relative;
+  display: flex;
+  gap: var(--component-sm);
+  padding: 0 var(--component-xs);
+  transition: gap var(--duration-layout-base) var(--easing-entrance);
+  user-select: none;
+}
+
+.slot {
+  position: relative;
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: var(--code-slots-slot-width-lg);
+  height: var(--code-slots-slot-height-lg);
+  background: var(--surface-base-muted);
+  border: var(--border-width-base-default) solid var(--border-base-strong);
+  border-radius: var(--radius-md);
+  transition:
+    border-color var(--duration-component-base) var(--easing-entrance),
+    border-radius var(--duration-layout-base) var(--easing-entrance),
+    opacity var(--duration-component-base) var(--easing-entrance);
+}
+
+/* Preenchimento roxo: cresce do centro quando a casa recebe o dígito.
+   Cobre a caixa inteira (inclui a borda) e herda o raio da casa: sem fio claro entre casas na barra. */
+.fill {
+  position: absolute;
+  inset: calc(-1 * var(--border-width-base-default));
+  border-radius: inherit;
+  background: var(--surface-brand-solid);
+  transform: scale(0);
+  transition: transform var(--duration-component-slow) var(--easing-entrance);
+}
+
+.digit {
+  position: relative;
+  font: var(--type-label-2xl-semibold);
+  color: var(--text-brand-on-solid);
+  opacity: 0;
+  transform: translateY(8px);
+  transition:
+    opacity var(--duration-component-base) var(--easing-entrance),
+    transform var(--duration-component-slow) var(--easing-entrance);
+}
+
+.caret {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: var(--border-width-base-focus);
+  height: 32px;
+  background: var(--icon-base-default);
+  opacity: 0;
+  transform: translate(-50%, -50%);
+}
+
+/* Filled */
+.slot[data-filled] {
+  border-color: var(--border-brand-default);
+}
+
+.slot[data-filled] .fill {
+  transform: scale(1);
+}
+
+.slot[data-filled] .digit {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Focus: anel de 2.2px em tinta e cursor piscando. */
+.slot[data-active] {
+  border-width: var(--border-width-base-indicator);
+  border-color: var(--icon-base-default);
+}
+
+.slot[data-active] .caret {
+  opacity: 1;
+  animation: blink 1s steps(1) infinite;
+}
+
+/* Error: borda e dígito vermelhos, sem preenchimento, com leve brilho interno. */
+.root[data-status='error'] .slot {
+  border-width: var(--border-width-base-default);
+  border-color: var(--border-status-danger);
+  box-shadow: inset 0 0 10px 0 rgba(212, 63, 63, 0.12);
+}
+
+.root[data-status='error'] .fill {
+  transform: scale(0);
+}
+
+.root[data-status='error'] .digit {
+  color: var(--text-status-danger);
+}
+
+.root[data-status='error'] .slots[data-shake] {
+  animation: shake var(--duration-layout-slow) var(--easing-standard);
+}
+
+/* Success: as casas viram uma barra única cheia com o check. */
+.root[data-status='success'] .slots {
+  gap: 0;
+}
+
+.root[data-status='success'] .slot {
+  border-color: transparent;
+  border-radius: 0;
+}
+
+.root[data-status='success'] .slot[data-edge='start'] {
+  border-start-start-radius: var(--radius-md);
+  border-end-start-radius: var(--radius-md);
+}
+
+.root[data-status='success'] .slot[data-edge='end'] {
+  border-start-end-radius: var(--radius-md);
+  border-end-end-radius: var(--radius-md);
+}
+
+.root[data-status='success'] .fill {
+  transform: scale(1);
+}
+
+.root[data-status='success'] .digit {
+  opacity: 0;
+}
+
+/* O traço do check ocupa o canto inferior direito da caixa de 32: translate o centra visualmente. */
+.check {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  color: var(--icon-base-default-inverse);
+  opacity: 0;
+  transform: translate(calc(-50% - 5px), calc(-50% - 5.5px)) scale(0.6);
+  transition:
+    opacity var(--duration-component-slow) var(--easing-entrance) var(--duration-component-base),
+    transform var(--duration-layout-base) var(--easing-entrance) var(--duration-component-base);
+}
+
+.root[data-status='success'] .check {
+  opacity: 1;
+  transform: translate(calc(-50% - 5px), calc(-50% - 5.5px)) scale(1);
+}
+
+/* Disabled */
+.root[data-disabled] .slot {
+  border-color: var(--border-base-muted);
+  opacity: 0.7;
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+/* Vibração: esquerda, direita, e suaviza (Shake=Left/Right/LeftSoft/RightSoft do Figma). */
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  15% {
+    transform: translateX(-8px);
+  }
+  30% {
+    transform: translateX(8px);
+  }
+  45% {
+    transform: translateX(-5px);
+  }
+  60% {
+    transform: translateX(5px);
+  }
+  80% {
+    transform: translateX(-2px);
+  }
+}
