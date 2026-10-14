@@ -15,6 +15,8 @@ export interface ButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement
   loading?: boolean
   /** Figma `HasIcon`. */
   icon?: IconName | false
+  /** Texto mostrado enquanto `loading` (ex.: "Verificando"). Sem ele, o rótulo normal fica. */
+  loadingLabel?: string
   /** Chamado ao clicar enquanto `disabled`: use para mostrar o que falta no formulário. */
   onDisabledClick?: (event: MouseEvent<HTMLButtonElement>) => void
   children: ReactNode
@@ -32,6 +34,7 @@ export function Button({
   size = 'xl',
   disabled = false,
   loading = false,
+  loadingLabel,
   icon = 'arrow-up-right-01',
   onClick,
   onDisabledClick,
@@ -62,7 +65,7 @@ export function Button({
       aria-busy={loading || undefined}
       onClick={handleClick}
     >
-      <span className={styles.label}>{children}</span>
+      <span className={styles.label}>{loading && loadingLabel ? loadingLabel : children}</span>
       {(icon || loading) && (
         <span className={styles.slot} data-loading={loading || undefined}>
           <Icon name={loading ? 'loading-03' : (icon as IconName)} spin={loading} className={styles.icon} />

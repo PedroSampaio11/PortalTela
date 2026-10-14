@@ -10,12 +10,23 @@
 6. **GIF da personagem carrega depois do `load`** da página, com fade, e some com "reduzir movimento".
 7. **Foco vai para o `h1`** a cada troca de tela/etapa (regra de SPA do `keyboard-and-focus`).
 
+8. **O cadastro nunca diz que o e-mail já existe** (descrição do `SignUpForm`: anti-enumeração de contas) e nunca altera uma conta existente. Mesmo princípio da recuperação: a resposta é sempre a mesma.
+9. **Anel dos campos cortado como no Figma.** O DS documenta o anel de 2,2px "cobrindo a borda", mas o frame do campo tem *clip content*: o que o Figma renderiza é a borda cinza de 1,2px mais ~1px de cor por dentro (medido pixel a pixel). O campo corta o anel igual, para bater com o que o stakeholder vê.
+10. **Códigos mockados:** `123456` correto, `000000` expirado, qualquer outro errado (3 erros bloqueiam por 15 min), 3 reenvios no máximo, 30 s entre reenvios. Contas persistem na sessão: a senha redefinida e a conta criada passam a valer no login.
+11. **Campo de código = um único `<input>`** (autocomplete `one-time-code`, colar funciona, leitor de tela lê o valor); as casas são só desenho.
+12. **`aria-disabled` em vez de `disabled`** nos botões de envio: o Playwright e leitores de tela os tratam como desabilitados, mas o clique mostra o que falta.
+
 ## Pendências para o design (achados na leitura do Figma)
 
 - `LoginFilledScreen` mostra o botão "Entrar" cinza com os dois campos preenchidos; nos frames Loading e Error o botão está ativo. Implementado: ativo.
 - `Link`: o estado Hover é idêntico ao Default (sem sublinhado nem mudança de cor). Implementado fiel ao DS; sugere-se um sinal de hover.
 - `LoginBlockedScreen` usa o placeholder `[X] minutos`: implementado com contagem regressiva real (15 min).
-- Cenas diferentes entre estados do mesmo fluxo (Login: varanda x escadaria).
+- Cenas diferentes entre estados do mesmo fluxo (Login: varanda x escadaria; Recuperação: terraço e escadaria).
+- Descrição do `StepIndicator` diz que etapas futuras usam `surface/base/muted`, mas o render usa `surface/brand/default` (implementado como o render).
+- Estado Error do `Text Input` mostra o texto de exemplo em cor primária mesmo vazio; implementado com placeholder cinza (comportamento real).
+- `VerifyCodeForm` Success cita "botão em Success", mas o estado Success do `Button` não tem ícone exportável nas telas; hoje o botão fica desabilitado durante a barra com check.
+- Frame `SignUpDone` (`3385:16078`) é uma anotação ("[jornada final] ... onboarding"), não uma tela; o destino final é a tela inicial provisória.
+- O estado Hover do `Link` é idêntico ao Default.
 
 ## Otimização pendente
 

@@ -3,17 +3,39 @@ import type { FormEvent } from 'react'
 import { AuthHeader } from '@/components/auth/AuthHeader'
 import { PasswordRequirements } from '@/components/auth/PasswordRequirements'
 import { Button, PasswordField } from '@/components/ui'
-import { simulateLatency, updatePassword } from '../mock/authApi'
+import { simulateLatency } from '../mock/authApi'
 import { evaluatePassword } from '../passwordRules'
-import styles from './RecoveryPage.module.css'
+import styles from './steps.module.css'
 
 interface PasswordStepProps {
-  email: string
-  onUpdated: () => void
+  title: string
+  description: string
+  passwordLabel: string
+  passwordPlaceholder: string
+  confirmLabel: string
+  confirmPlaceholder: string
+  /** Rótulo do botão final (Recovery: "Atualizar senha"; SignUp: "Criar conta"). */
+  submitLabel: string
+  /** Rótulo enquanto envia (SignUp: "Criando"). */
+  loadingLabel?: string
+  /** O que fazer com a senha escolhida (atualizar a conta ou criá-la). */
+  onSubmit: (password: string) => void
+  onDone: () => void
 }
 
-/** Etapa 3 de 3 (Figma `NewPasswordForm` Flow=Recovery: Default, Weak, Mismatch, Valid, Loading). */
-export function PasswordStep({ email, onUpdated }: PasswordStepProps) {
+/** Etapa 3 de 3 (Figma `NewPasswordForm`: Default, Weak, Mismatch, Valid, Loading), para os dois fluxos. */
+export function PasswordStep({
+  title,
+  description,
+  passwordLabel,
+  passwordPlaceholder,
+  confirmLabel,
+  confirmPlaceholder,
+  submitLabel,
+  loadingLabel,
+  onSubmit,
+  onDone,
+}: PasswordStepProps) {
   const [password, setPassword] = useState('')
   const [confirm, setConfirm] = useState('')
   const [confirmTouched, setConfirmTouched] = useState(false)
@@ -41,20 +63,20 @@ export function PasswordStep({ email, onUpdated }: PasswordStepProps) {
     if (confirm.length === 0 || confirm !== password) return confirmRef.current?.focus()
     setSubmitting(true)
     await simulateLatency()
-    updatePassword(email, password)
-    onUpdated()
+    onSubmit(password)
+    onDone()
   }
 
   return (
     <>
-      <AuthHeader title="Crie uma nova senha" description="Defina uma nova senha para voltar a acessar sua conta." />
+      <AuthHeader title={title} description={description} />
       <form className={styles.form} onSubmit={(event) => void submit(event)} noValidate aria-busy={submitting || undefined}>
         <div className={styles.fields}>
           <PasswordField
             ref={passwordRef}
-            label="Nova senha"
+            label={passwordLabel}
             autoComplete="new-password"
-            placeholder="mínimo de 8 caracteres"
+            placeholder={passwordPlaceholder}
             value={password}
             onChange={(event) => setPassword(event.target.value)}
             readOnly={submitting}
@@ -63,9 +85,9 @@ export function PasswordStep({ email, onUpdated }: PasswordStepProps) {
           />
           <PasswordField
             ref={confirmRef}
-            label="Confirmar nova senha"
+            label={confirmLabel}
             autoComplete="new-password"
-            placeholder="repita a senha"
+            placeholder={confirmPlaceholder}
             value={confirm}
             onChange={(event) => setConfirm(event.target.value)}
             onBlur={() => setConfirmTouched(true)}
@@ -75,8 +97,8 @@ export function PasswordStep({ email, onUpdated }: PasswordStepProps) {
           />
         </div>
         <PasswordRequirements met={rules.met} />
-        <Button type="submit" variant="outline" loading={submitting} disabled={!ready} onDisabledClick={() => void submit()}>
-          Atualizar senha
+        <Button type="submit" variant="outline" loading={submitting} loadingLabel={loadingLabel} disabled={!ready} onDisabledClick={() => void submit()}>
+          {submitLabel}
         </Button>
       </form>
     </>

@@ -23,6 +23,9 @@
   background: var(--surface-base-field);
   border: var(--border-width-base-default) solid var(--border-base-default);
   border-radius: var(--radius-md);
+  /* Como o "clip content" do frame no Figma: o anel de 2.2px é cortado no limite interno da borda,
+     então o que se vê é a borda cinza de 1.2px e ~1px de cor por dentro (medido no render do Figma). */
+  overflow: hidden;
 }
 
 .input {

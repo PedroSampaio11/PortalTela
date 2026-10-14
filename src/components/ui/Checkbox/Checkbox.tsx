@@ -11,10 +11,15 @@ export interface CheckboxProps extends Omit<InputHTMLAttributes<HTMLInputElement
   label?: ReactNode
   /** Figma `Checked=Indeterminate`. */
   indeterminate?: boolean
+  /**
+   * `consent`: frase de aceite em 14px secundário, sem altura mínima (o alvo de toque de 44px é
+   * mantido por uma área invisível ao redor), como no `ConsentRow` do DS.
+   */
+  variant?: 'default' | 'consent'
 }
 
 /** `Checkbox` do DS (2938:73538), Style=Brand, Size=md. Input nativo + controle desenhado. */
-export function Checkbox({ ref, label, indeterminate = false, className, id, ...rest }: CheckboxProps) {
+export function Checkbox({ ref, label, indeterminate = false, variant = 'default', className, id, ...rest }: CheckboxProps) {
   const autoId = useId()
   const inputId = id ?? autoId
   const innerRef = useRef<HTMLInputElement | null>(null)
@@ -29,7 +34,7 @@ export function Checkbox({ ref, label, indeterminate = false, className, id, ...
   }
 
   return (
-    <div className={cx(styles.root, className)}>
+    <div className={cx(styles.root, className)} data-variant={variant}>
       <input {...rest} ref={setRefs} id={inputId} type="checkbox" className={styles.native} />
       <span className={styles.control} aria-hidden="true">
         <Icon name="check" width={14} height={11} className={cx(styles.mark, styles.check)} />

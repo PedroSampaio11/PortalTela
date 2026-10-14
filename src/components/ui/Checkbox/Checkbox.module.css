@@ -28,6 +28,8 @@
   border: var(--border-width-base-default) solid var(--border-base-default);
   border-radius: var(--radius-sm);
   color: var(--icon-base-default-inverse);
+  /* O desenho não pode interceptar o clique: quem recebe é o input nativo por baixo. */
+  pointer-events: none;
   transition:
     background-color var(--duration-component-base) var(--easing-entrance),
     border-color var(--duration-component-base) var(--easing-entrance);
@@ -107,4 +109,22 @@
 .native:disabled ~ .label {
   color: var(--text-base-disabled);
   cursor: not-allowed;
+}
+
+/* Consent: texto de 14px secundário; a linha não cresce, mas o toque continua com 44px. */
+.root[data-variant='consent'] {
+  min-height: 0;
+  min-width: 0;
+  width: 100%;
+  align-items: center;
+}
+
+.root[data-variant='consent'] .native {
+  inset: -12px auto -12px -12px;
+  width: var(--control-touch-min);
+}
+
+.root[data-variant='consent'] .label {
+  font: var(--type-body-sm-regular);
+  color: var(--text-base-secondary);
 }

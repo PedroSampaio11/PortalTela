@@ -7,7 +7,7 @@ import { Button, InlineMessage, TextField } from '@/components/ui'
 import { NETWORK_FAILURE_EMAIL } from '../mock/authApi'
 import { recoveryCodeFlow } from '../mock/codeFlow'
 import { emailSchema } from '../schemas'
-import styles from './RecoveryPage.module.css'
+import styles from '../shared/steps.module.css'
 
 const schema = z.object({ email: emailSchema })
 type Values = z.infer<typeof schema>

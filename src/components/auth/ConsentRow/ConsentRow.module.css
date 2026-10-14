@@ -1,0 +1,17 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: var(--component-xs);
+  min-width: var(--row-min-width);
+  width: 100%;
+}
+
+/* A frase quebra em linhas mantendo os links no fluxo do texto. */
+.text {
+  display: inline;
+}
+
+.error {
+  font: var(--type-body-sm-regular);
+  color: var(--text-status-danger);
+}

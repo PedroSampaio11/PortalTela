@@ -10,6 +10,7 @@ produto real: todos os estados do Figma, validação, bloqueio por tentativas, a
 npm install
 npm run dev          # gera os tokens e sobe o Vite
 npm run test         # vitest (unidade + jornada de cada fluxo)
+npm run test:e2e     # playwright (navegador real; sobe o Vite sozinho)
 npm run typecheck && npm run lint
 npm run build
 ```
@@ -22,7 +23,8 @@ npm run build
 | `scripts/generate-tokens.mjs` | Gera `src/styles/tokens.css` (CSS Variables). Nome mecânico: `text/base/primary` vira `--text-base-primary`. **Nunca editar `tokens.css` à mão.** |
 | `src/components/ui` | Componentes do DS: `Button`, `TextField`, `PasswordField`, `Checkbox`, `TextLink`, `SocialButton`, `InlineMessage`, `NavButton`, `Divider`, `Logo`, `Icon`. Cada um com os estados lidos do Component Set (hover, pressed, focus, disabled, loading). |
 | `src/components/auth` | Composições do DS: `AuthLayout`, `AuthHeader`, `AccountPrompt`, `SocialLogin`. |
-| `src/features/auth` | Fluxos (`login`, depois `recovery` e `signup`), `mock/` (backend simulado) e schemas de validação (Zod). |
+| `src/features/auth` | Fluxos `login`, `recovery` e `signup`, etapas compartilhadas (`shared/`: código e nova senha), `mock/` (backend simulado) e schemas de validação (Zod). |
+| `e2e/` | Testes Playwright em navegador real (clique, foco, tabulação, mídia animada). |
 
 Estilo: CSS Modules + CSS Variables (sem Tailwind: o `tokens.css` funciona sozinho, conforme o padrão do DS §8).
 Nomes de props espelham as variants do Figma (`variant` é o `Style`, pois `style` é reservado do React).
@@ -36,6 +38,10 @@ Nomes de props espelham as variants do Figma (`variant` é o `Style`, pois `styl
 | `erro@email.com` (qualquer senha) | Falha de rede (erro do sistema, não do usuário) |
 | Botão **Google** | Entra após 1,6 s |
 | Botão **Apple** | Falha do provedor após 1,6 s |
+| Código de verificação `123456` | Correto |
+| Código `000000` | Expirado |
+| Qualquer outro código | Incorreto; o 3º erro bloqueia por 15 min |
+| `erro@email.com` no cadastro ou na recuperação | Falha de rede ao enviar o código |
 
 ## Decisões e pendências para o design
 

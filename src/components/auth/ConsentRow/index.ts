@@ -1,0 +1,1 @@
+export { ConsentRow } from './ConsentRow'

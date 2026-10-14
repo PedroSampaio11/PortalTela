@@ -5,9 +5,11 @@ import { AuthResult } from '@/components/auth/AuthResult'
 import { StepIndicator } from '@/components/auth/StepIndicator'
 import { recoveryIllustration } from '../illustrations'
 import { timing } from '../timing'
-import { CodeStep } from './CodeStep'
+import { recoveryCodeFlow } from '../mock/codeFlow'
+import { updatePassword } from '../mock/authApi'
+import { CodeStep } from '../shared/CodeStep'
+import { PasswordStep } from '../shared/PasswordStep'
 import { EmailStep } from './EmailStep'
-import { PasswordStep } from './PasswordStep'
 
 /**
  * Fluxo de recuperação de senha, em 3 etapas (Figma `RecoveryFlowSection`).
@@ -65,6 +67,8 @@ export function RecoveryPage() {
       {step === 'emailSent' && <AuthResult title="Código enviado" description="Verifique seu email" />}
       {step === 'code' && (
         <CodeStep
+          flow="recovery"
+          codeFlow={recoveryCodeFlow}
           email={email}
           initialLockedUntil={lockedUntil}
           onVerified={() => goTo('codeConfirmed')}
@@ -74,7 +78,19 @@ export function RecoveryPage() {
       {step === 'codeConfirmed' && (
         <AuthResult title="Código confirmado" description="Agora crie uma nova senha para voltar a acessar sua conta." />
       )}
-      {step === 'password' && <PasswordStep email={email} onUpdated={() => goTo('updated')} />}
+      {step === 'password' && (
+        <PasswordStep
+          title="Crie uma nova senha"
+          description="Defina uma nova senha para voltar a acessar sua conta."
+          passwordLabel="Nova senha"
+          passwordPlaceholder="mínimo de 8 caracteres"
+          confirmLabel="Confirmar nova senha"
+          confirmPlaceholder="repita a senha"
+          submitLabel="Atualizar senha"
+          onSubmit={(password) => updatePassword(email, password)}
+          onDone={() => goTo('updated')}
+        />
+      )}
       {step === 'updated' && (
         <AuthResult title="Senha atualizada" description="Você já pode usar a nova senha. Vamos levar você ao portal." />
       )}

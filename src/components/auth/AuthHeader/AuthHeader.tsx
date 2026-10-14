@@ -8,7 +8,8 @@ interface AuthHeaderProps {
   description?: string
 }
 
-// Só move o foco em trocas de tela/etapa, não no primeiro carregamento da página.
+// Só move o foco em trocas de tela/etapa, não no primeiro carregamento da página. A marca é posta
+// num timeout para o StrictMode (que roda o efeito duas vezes na montagem) não contar como "troca".
 let hasRendered = false
 
 /**
@@ -23,7 +24,10 @@ export function AuthHeader({ title, description }: AuthHeaderProps) {
     const active = document.activeElement
     const fieldAlreadyFocused = active !== null && active !== document.body && active !== ref.current
     if (hasRendered && !fieldAlreadyFocused) ref.current?.focus({ preventScroll: true })
-    hasRendered = true
+    const id = window.setTimeout(() => {
+      hasRendered = true
+    }, 0)
+    return () => window.clearTimeout(id)
   }, [])
 
   useEffect(() => {

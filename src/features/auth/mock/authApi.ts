@@ -58,10 +58,17 @@ export function accountExists(email: string): boolean {
   return normalizeEmail(email) in readAccounts()
 }
 
+/**
+ * Conclui o cadastro. O e-mail já foi provado pelo código. Se a conta já existir, NÃO é sobrescrita
+ * (o cadastro nunca revela, nem altera, uma conta existente): a pessoa entra na conta que já tinha.
+ */
 export function registerAccount(input: { name: string; email: string; password: string }): Session {
   const email = normalizeEmail(input.email)
-  writeJson(ACCOUNTS_KEY, { ...readJson<Record<string, Account>>(ACCOUNTS_KEY, {}), [email]: { name: input.name, password: input.password } })
-  const session: Session = { name: input.name, email, provider: 'password' }
+  const existing = readAccounts()[email]
+  if (!existing) {
+    writeJson(ACCOUNTS_KEY, { ...readJson<Record<string, Account>>(ACCOUNTS_KEY, {}), [email]: { name: input.name, password: input.password } })
+  }
+  const session: Session = { name: existing?.name ?? input.name, email, provider: 'password' }
   writeJson(SESSION_KEY, session)
   return session
 }

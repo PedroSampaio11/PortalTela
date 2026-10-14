@@ -1,0 +1,20 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--component-lg);
+  min-height: 100vh;
+  padding: var(--layout-sm);
+  text-align: center;
+}
+
+.title {
+  font: var(--type-title-2xl-bold);
+}
+
+.text {
+  max-width: 560px;
+  font: var(--type-body-md-regular);
+  color: var(--text-base-secondary);
+}

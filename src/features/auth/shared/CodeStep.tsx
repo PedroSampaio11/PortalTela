@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import type { FormEvent } from 'react'
+import type { FormEvent, ReactNode } from 'react'
 import { AuthHeader } from '@/components/auth/AuthHeader'
 import { ResendCode } from '@/components/auth/ResendCode'
 import type { ResendState } from '@/components/auth/ResendCode'
@@ -8,12 +8,19 @@ import { CodeSlots } from '@/components/ui/CodeSlots'
 import { useCountdown } from '@/hooks/useCountdown'
 import { maskEmail } from '../email'
 import { timing } from '../timing'
-import { CODE_RULES, CodeFlowError, recoveryCodeFlow, resendCooldown } from '../mock/codeFlow'
-import styles from './RecoveryPage.module.css'
+import { CODE_RULES, CodeFlowError, resendCooldown } from '../mock/codeFlow'
+import type { createCodeFlow } from '../mock/codeFlow'
+import styles from './steps.module.css'
 
 type Phase = 'idle' | 'verifying' | 'error' | 'expired' | 'blocked' | 'success'
 
 interface CodeStepProps {
+  /** Figma `Flow`: Recovery usa texto neutro quando bloqueado; SignUp mostra sempre o e-mail e "Verificando". */
+  flow: 'recovery' | 'signup'
+  /** Regras do mock deste fluxo (estados de código separados por fluxo). */
+  codeFlow: ReturnType<typeof createCodeFlow>
+  /** Rodapé do formulário (SignUp: "Já tem uma conta? Entrar"). */
+  footer?: ReactNode
   email: string
   initialLockedUntil: number | null
   onVerified: () => void
@@ -21,8 +28,8 @@ interface CodeStepProps {
   onChangeEmail: () => void
 }
 
-/** Etapa 2 de 3 (Figma `VerifyCodeForm` Flow=Recovery). */
-export function CodeStep({ email, initialLockedUntil, onVerified, onChangeEmail }: CodeStepProps) {
+/** Etapa 2 de 3 (Figma `VerifyCodeForm`, Flow=Recovery ou SignUp). */
+export function CodeStep({ flow, codeFlow, footer, email, initialLockedUntil, onVerified, onChangeEmail }: CodeStepProps) {
   const inputRef = useRef<HTMLInputElement>(null)
   const [value, setValue] = useState('')
   const [phase, setPhase] = useState<Phase>(initialLockedUntil ? 'blocked' : 'idle')
@@ -32,7 +39,7 @@ export function CodeStep({ email, initialLockedUntil, onVerified, onChangeEmail 
   const [showSent, setShowSent] = useState(false)
   const [resending, setResending] = useState(false)
   const [cooldownKey, setCooldownKey] = useState(0)
-  const [exhausted, setExhausted] = useState(() => recoveryCodeFlow.resendsLeft() === 0)
+  const [exhausted, setExhausted] = useState(() => codeFlow.resendsLeft() === 0)
 
   const secondsLeft = useCountdown(resendCooldown.seconds, cooldownKey)
 
@@ -79,7 +86,7 @@ export function CodeStep({ email, initialLockedUntil, onVerified, onChangeEmail 
   async function verify() {
     setPhase('verifying')
     try {
-      await recoveryCodeFlow.verify(value)
+      await codeFlow.verify(value)
       setPhase('success')
     } catch (error) {
       if (!(error instanceof CodeFlowError)) throw error
@@ -100,7 +107,7 @@ export function CodeStep({ email, initialLockedUntil, onVerified, onChangeEmail 
   async function resend() {
     setResending(true)
     try {
-      const { resendsLeft } = await recoveryCodeFlow.resend()
+      const { resendsLeft } = await codeFlow.resend()
       setExhausted(resendsLeft === 0)
       setValue('')
       setPhase('idle')
@@ -122,9 +129,10 @@ export function CodeStep({ email, initialLockedUntil, onVerified, onChangeEmail 
     if (complete && !busy && !blocked) void verify()
   }
 
-  const description = blocked
-    ? 'Se o e-mail estiver cadastrado, enviamos um código de 6 dígitos. Ele vale por 10 minutos.'
-    : `Enviamos um código de 6 dígitos para ${maskEmail(email)}`
+  const description =
+    blocked && flow === 'recovery'
+      ? 'Se o e-mail estiver cadastrado, enviamos um código de 6 dígitos. Ele vale por 10 minutos.'
+      : `Enviamos um código de 6 dígitos para ${maskEmail(email)}`
 
   return (
     <>
@@ -171,12 +179,14 @@ export function CodeStep({ email, initialLockedUntil, onVerified, onChangeEmail 
           type="submit"
           variant="outline"
           loading={phase === 'verifying'}
+          loadingLabel={flow === 'signup' ? 'Verificando' : undefined}
           disabled={!complete || blocked || phase === 'success'}
           onDisabledClick={() => inputRef.current?.focus()}
         >
           Verificar código
         </Button>
       </form>
+      {footer}
     </>
   )
 }
