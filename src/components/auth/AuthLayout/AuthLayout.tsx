@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
-import type { ReactNode } from 'react'
+import type { CSSProperties, ReactNode } from 'react'
 import { Logo } from '@/components/ui/Logo'
 import { NavButton } from '@/components/ui/NavButton'
+import { useFitScale } from '@/hooks/useFitScale'
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion'
 import styles from './AuthLayout.module.css'
 
@@ -47,37 +48,42 @@ export function AuthLayout({
   stepKey,
   children,
 }: AuthLayoutProps) {
+  const fit = useFitScale()
   return (
-    <div className={styles.layout}>
-      <Illustration {...illustration} />
-      <div className={styles.brandPanel}>
-        <p className={styles.caption}>{caption}</p>
-        <p className={styles.captionDescription}>{captionDescription}</p>
-      </div>
-      <div className={styles.cardColumn}>
-        <div className={styles.card}>
-          <header className={styles.topBar}>
-            <div className={styles.topRow}>
-              <div className={styles.slot}>
-                {backTo ? (
-                  <NavButton to={backTo} label={backLabel} />
-                ) : (
-                  onBack && <NavButton onClick={onBack} label={backLabel} />
-                )}
-              </div>
-              <div className={styles.logoSlot}>
-                <Logo />
-              </div>
-              <div className={styles.slot} aria-hidden="true" />
+    <div className={styles.viewport} style={{ '--fit': fit } as CSSProperties}>
+      <div className={styles.stage}>
+        <div className={styles.layout}>
+          <Illustration {...illustration} />
+          <div className={styles.brandPanel}>
+            <p className={styles.caption}>{caption}</p>
+            <p className={styles.captionDescription}>{captionDescription}</p>
+          </div>
+          <div className={styles.cardColumn}>
+            <div className={styles.card}>
+              <header className={styles.topBar}>
+                <div className={styles.topRow}>
+                  <div className={styles.slot}>
+                    {backTo ? (
+                      <NavButton to={backTo} label={backLabel} />
+                    ) : (
+                      onBack && <NavButton onClick={onBack} label={backLabel} />
+                    )}
+                  </div>
+                  <div className={styles.logoSlot}>
+                    <Logo />
+                  </div>
+                  <div className={styles.slot} aria-hidden="true" />
+                </div>
+                {progress}
+              </header>
+              <main className={styles.body} id="conteudo">
+                <div key={stepKey} className={styles.content}>
+                  {children}
+                </div>
+              </main>
+              <p className={styles.copyright}>{copyright}</p>
             </div>
-            {progress}
-          </header>
-          <main className={styles.body} id="conteudo">
-            <div key={stepKey} className={styles.content}>
-              {children}
-            </div>
-          </main>
-          <p className={styles.copyright}>{copyright}</p>
+          </div>
         </div>
       </div>
     </div>

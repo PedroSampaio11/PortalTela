@@ -13,7 +13,6 @@ html {
 
 body {
   margin: 0;
-  min-width: var(--breakpoint-desktop);
   background: var(--surface-base-muted);
   color: var(--text-base-primary);
   font: var(--type-body-md-regular);

@@ -2,14 +2,20 @@ import { expect, test } from '@playwright/test'
 import { DEMO_STATES, demoHref } from '../src/features/demo/scenarios'
 
 /**
- * Integridade de layout em TODOS os estados das 3 telas, em 3 tamanhos de janela.
- * Garante: título nunca sobre o logo, nada vaza do cartão, sem rolagem horizontal, copyright sempre
- * abaixo do conteúdo. (Bug original: com helper text o "Entrar" subia por cima do logo.)
+ * Integridade de layout em TODOS os estados das 3 telas, em vários tamanhos de janela.
+ * Garante: SEM rolagem (vertical nem horizontal), tudo dentro da janela, título nunca sobre o logo,
+ * nada vaza do cartão, copyright sempre abaixo do conteúdo.
+ * (Bug original: com helper text o "Entrar" subia por cima do logo.)
  */
 const VIEWPORTS = [
   { name: '1440x1024', width: 1440, height: 1024 },
+  { name: '1920x1080', width: 1920, height: 1080 },
+  { name: '1366x768', width: 1366, height: 768 },
   { name: '1280x720', width: 1280, height: 720 },
   { name: '1024x768', width: 1024, height: 768 },
+  { name: '1440x600', width: 1440, height: 600 },
+  { name: '1440x1300', width: 1440, height: 1300 },
+  { name: '900x600', width: 900, height: 600 },
 ]
 
 for (const viewport of VIEWPORTS) {
@@ -21,7 +27,7 @@ for (const viewport of VIEWPORTS) {
         await page.goto(demoHref(state.id))
         await page.waitForLoadState('load')
         await page.locator('h1').first().waitFor()
-        await page.waitForTimeout(700) // entrada animada e Reveal assentam
+        await page.waitForTimeout(600) // entrada animada e Reveal assentam
 
         const report = await page.evaluate(() => {
           const rect = (el: Element) => el.getBoundingClientRect()
@@ -37,6 +43,10 @@ for (const viewport of VIEWPORTS) {
           if (rect(h1).top < rect(logo).bottom + 8) problems.push(`título (${Math.round(rect(h1).top)}) encosta ou passa do logo (${Math.round(rect(logo).bottom)})`)
           if (rect(content).bottom > rect(copyright).top - 8) problems.push(`conteúdo (${Math.round(rect(content).bottom)}) encosta no copyright (${Math.round(rect(copyright).top)})`)
           if (document.documentElement.scrollWidth > window.innerWidth) problems.push(`rolagem horizontal (${document.documentElement.scrollWidth} > ${window.innerWidth})`)
+          if (document.documentElement.scrollHeight > window.innerHeight) problems.push(`ROLAGEM VERTICAL (${document.documentElement.scrollHeight} > ${window.innerHeight})`)
+          if (document.body.scrollHeight > window.innerHeight) problems.push(`rolagem vertical no body (${document.body.scrollHeight} > ${window.innerHeight})`)
+          if (cardRect.top < -0.5 || cardRect.bottom > window.innerHeight + 0.5) problems.push(`cartão fora da janela (${Math.round(cardRect.top)}..${Math.round(cardRect.bottom)} de ${window.innerHeight})`)
+          if (rect(copyright).bottom > window.innerHeight + 0.5) problems.push('copyright fora da janela')
 
           for (const el of main.querySelectorAll('*')) {
             if (el.classList.contains('visually-hidden')) continue

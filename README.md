@@ -10,7 +10,7 @@ produto real: todos os estados do Figma, validação, bloqueio por tentativas, a
 npm install
 npm run dev          # gera os tokens e sobe o Vite
 npm run test         # vitest (unidade + jornada de cada fluxo)
-npm run test:e2e     # playwright: jornadas em navegador real + auditoria de acessibilidade (axe, WCAG 2.1 AA)
+npm run test:e2e     # playwright: jornadas, layout sem rolagem (49 estados x 8 janelas) e acessibilidade (axe, WCAG 2.1 AA)
 npm run typecheck && npm run lint
 npm run build
 ```
