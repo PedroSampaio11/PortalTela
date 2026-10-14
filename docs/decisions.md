@@ -16,6 +16,9 @@
 11. **Campo de código = um único `<input>`** (autocomplete `one-time-code`, colar funciona, leitor de tela lê o valor); as casas são só desenho.
 12. **`aria-disabled` em vez de `disabled`** nos botões de envio: o Playwright e leitores de tela os tratam como desabilitados, mas o clique mostra o que falta.
 
+13. **Guia de demonstração só com `?demo`** (e preso à sessão): a interface padrão fica idêntica ao Figma.
+14. **Acessibilidade medida, não presumida:** o E2E roda o axe-core (WCAG 2.1 A/AA) em ~20 telas e estados (padrão, erros, bloqueios, carregando, resultados). Zero violações.
+
 ## Pendências para o design (achados na leitura do Figma)
 
 - `LoginFilledScreen` mostra o botão "Entrar" cinza com os dois campos preenchidos; nos frames Loading e Error o botão está ativo. Implementado: ativo.
@@ -28,6 +31,6 @@
 - Frame `SignUpDone` (`3385:16078`) é uma anotação ("[jornada final] ... onboarding"), não uma tela; o destino final é a tela inicial provisória.
 - O estado Hover do `Link` é idêntico ao Default.
 
-## Otimização pendente
+## Otimização feita
 
-- As ilustrações pesam ~12,5 MB nos dois fluxos (PNG + GIF). Converter para WebP/AVIF animado sem perder fidelidade.
+- Ilustrações em WebP (22,6 MB para 3,2 MB; primeiro paint de 216 a 251 kB). Originais do Figma em `design-source/`; reprodutível com `node scripts/optimize-images.mjs`.

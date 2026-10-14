@@ -10,7 +10,7 @@ produto real: todos os estados do Figma, validação, bloqueio por tentativas, a
 npm install
 npm run dev          # gera os tokens e sobe o Vite
 npm run test         # vitest (unidade + jornada de cada fluxo)
-npm run test:e2e     # playwright (navegador real; sobe o Vite sozinho)
+npm run test:e2e     # playwright: jornadas em navegador real + auditoria de acessibilidade (axe, WCAG 2.1 AA)
 npm run typecheck && npm run lint
 npm run build
 ```
@@ -28,6 +28,13 @@ npm run build
 
 Estilo: CSS Modules + CSS Variables (sem Tailwind: o `tokens.css` funciona sozinho, conforme o padrão do DS §8).
 Nomes de props espelham as variants do Figma (`variant` é o `Style`, pois `style` é reservado do React).
+
+## Apresentando (guia de demonstração)
+
+Abra qualquer tela com `?demo` na URL (ex.: `/entrar?demo`). Aparece um botão **Demo** no canto inferior
+esquerdo, com as credenciais e códigos copiáveis, atalhos para os 3 fluxos, **modo rápido** (respostas em ~0,2 s
+e reenvio em 3 s) e **Reiniciar demonstração** (zera bloqueios, contas criadas e sessão). Sem `?demo` a interface
+é exatamente a do produto.
 
 ## Cenários de demonstração (mock)
 

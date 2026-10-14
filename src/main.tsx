@@ -5,6 +5,9 @@ import '@fontsource-variable/manrope'
 import '@fontsource-variable/plus-jakarta-sans'
 import '@/styles/globals.css'
 import { router } from '@/app/router'
+import { applyStoredDemoSettings } from '@/features/demo'
+
+applyStoredDemoSettings()
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
