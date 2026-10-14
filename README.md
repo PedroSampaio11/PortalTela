@@ -1,61 +1,103 @@
-# Portal Tela: autenticação
+# Portal Tela: telas de autenticação
 
-Telas de **login, cadastro e recuperação de senha** do Portal Tela, implementadas a partir do Figma
-(`V4 Design`, nó `3:11`) com React + TypeScript. Tudo é **mockado** (sem backend), mas se comporta como
-produto real: todos os estados do Figma, validação, bloqueio por tentativas, animações e ilustração viva.
+**Login, criar conta e recuperar senha** do Portal Tela, feitas a partir do Figma (`V4 Design`) com
+React + TypeScript. Não há servidor nem banco: tudo é simulado, mas se comporta como produto de verdade
+(validações, bloqueio por tentativas, códigos por e-mail, animações e ilustração viva).
 
-## Rodar
+## Como rodar (3 passos)
+
+Precisa do **Node 22.12 ou mais novo** (`node -v`).
 
 ```bash
-npm install
-npm run dev          # gera os tokens e sobe o Vite
-npm run test         # vitest (unidade + jornada de cada fluxo)
-npm run test:e2e     # playwright: jornadas, layout sem rolagem (49 estados x 8 janelas) e acessibilidade (axe, WCAG 2.1 AA)
-npm run typecheck && npm run lint
-npm run build
+npm install     # só na primeira vez
+npm start       # sobe o projeto e abre o navegador já na demonstração
 ```
 
-## Arquitetura
+Se o navegador não abrir sozinho, acesse **http://localhost:5180/entrar?demo**.
 
-| Pasta | O que é |
+> O `?demo` no final do endereço liga o **guia de demonstração**. Sem ele a tela é exatamente a do produto.
+
+Para parar: `Ctrl + C` no terminal.
+
+## Como apresentar
+
+1. Abra **http://localhost:5180/entrar?demo**.
+2. Clique no botão **Demo** (canto inferior esquerdo).
+3. Escolha um estado na lista e ele abre na hora, ou use **Próximo** / **Anterior**.
+4. Para ver tudo em sequência, clique em **Passeio automático** (um estado a cada 3,5 s).
+
+| Quero | Faça |
 |---|---|
-| `tokens/figma-tokens.json` | **Fonte da verdade** dos tokens, exportada do arquivo do DS (cor Light/Dark, espaço, raio, borda, motion, tipografia, elevação). |
-| `scripts/generate-tokens.mjs` | Gera `src/styles/tokens.css` (CSS Variables). Nome mecânico: `text/base/primary` vira `--text-base-primary`. **Nunca editar `tokens.css` à mão.** |
-| `src/components/ui` | Componentes do DS: `Button`, `TextField`, `PasswordField`, `Checkbox`, `TextLink`, `SocialButton`, `InlineMessage`, `NavButton`, `Divider`, `Logo`, `Icon`. Cada um com os estados lidos do Component Set (hover, pressed, focus, disabled, loading). |
-| `src/components/auth` | Composições do DS: `AuthLayout`, `AuthHeader`, `AccountPrompt`, `SocialLogin`. |
-| `src/features/auth` | Fluxos `login`, `recovery` e `signup`, etapas compartilhadas (`shared/`: código e nova senha), `mock/` (backend simulado) e schemas de validação (Zod). |
-| `e2e/` | Testes Playwright em navegador real (clique, foco, tabulação, mídia animada). |
+| Ver **qualquer** estado direto (erro, bloqueio, carregando...) | Botão **Demo**, escolha o estado |
+| Passar de um para o próximo | **Alt + →** (voltar: **Alt + ←**) |
+| Ver todos sozinhos | **Passeio automático** |
+| Usar o fluxo de verdade (digitando) | Use as credenciais da tabela abaixo |
+| Não esperar nada (reenvio e bloqueio rápidos) | Marque **Modo rápido** no guia |
+| Voltar tudo ao começo | **Reiniciar demonstração** no guia |
+| Esconder o guia (tela limpa, como o produto) | Abra o endereço **sem** `?demo` |
 
-Estilo: CSS Modules + CSS Variables (sem Tailwind: o `tokens.css` funciona sozinho, conforme o padrão do DS §8).
-Nomes de props espelham as variants do Figma (`variant` é o `Style`, pois `style` é reservado do React).
+Os estados abrem **fixos** (nada avança sozinho) para dar tempo de mostrar, mas campos e botões continuam funcionando.
 
-## Apresentando (guia de demonstração)
-
-Abra qualquer tela com `?demo` na URL (ex.: `/entrar?demo`). Aparece o botão **Demo** no canto inferior esquerdo.
-Sem `?demo` a interface é exatamente a do produto.
-
-- **Navegador de estados:** os **49 estados** (45 do Figma + 4 que o produto real teria) abrem direto, sem precisar
-  provocá-los. Cada um tem link: `/entrar?demo&state=login.blocked`, `/cadastro?demo&state=signup.code-expired`,
-  `/recuperar-senha?demo&state=recovery.password-mismatch`.
-- **Percorrer tudo:** botões **Anterior / Próximo**, atalho **Alt + ← / →** e **Passeio automático** (um estado a cada 3,5 s).
-- Os estados abrem fixos (nada avança sozinho) para dar tempo de olhar, mas campos e botões continuam funcionando.
-- **Modo rápido:** respostas em ~0,2 s, reenvio em 3 s e bloqueio de 20 s (a demonstração nunca fica presa).
-- **Reiniciar demonstração:** zera bloqueios, contas criadas e sessão.
-
-## Cenários de demonstração (mock)
+### Usando o fluxo de verdade
 
 | Ação | Resultado |
 |---|---|
-| `test@gmail.com` + `test@2026` | Entra (conta principal) |
-| Qualquer outra combinação | "E-mail ou senha incorretos"; a **3ª** errada bloqueia por 15 min (persiste ao recarregar) |
-| `erro@email.com` (qualquer senha) | Falha de rede (erro do sistema, não do usuário) |
-| Botão **Google** | Entra após 1,6 s |
-| Botão **Apple** | Falha do provedor após 1,6 s |
-| Código de verificação `123456` | Correto (segue o fluxo) |
-| Código `111111` (ou qualquer outro) | Incorreto; o 3º erro bloqueia (15 min; 20 s no modo rápido) |
-| Código `000000` | Expirado (libera o reenvio) |
-| `erro@email.com` no cadastro ou na recuperação | Falha de rede ao enviar o código |
+| E-mail `test@gmail.com` + senha `test@2026` | **Entra** (conta principal) |
+| Qualquer outro e-mail ou senha | Erro. A **3ª** tentativa errada **bloqueia** (15 min; 20 s no Modo rápido) |
+| Código `123456` | **Certo**: segue para a próxima etapa |
+| Código `111111` (ou qualquer outro) | **Errado**: 3 erros bloqueiam |
+| Código `000000` | **Expirado**: libera o reenvio |
+| Botão **Google** | Entra |
+| Botão **Apple** | Falha (para mostrar o erro do login social) |
+| E-mail `erro@email.com` | Falha de rede (qualquer senha; também no cadastro e na recuperação) |
 
-## Decisões e pendências para o design
+Criar conta e recuperar senha funcionam de verdade na simulação: a conta criada e a senha nova passam a valer no login.
 
-Ver `docs/decisions.md`.
+### Endereços diretos
+
+| Tela | Endereço |
+|---|---|
+| Entrar | `/entrar` |
+| Criar conta | `/cadastro` |
+| Recuperar senha | `/recuperar-senha` |
+
+Qualquer estado também tem link direto, por exemplo `/entrar?demo&state=login.blocked` ou
+`/cadastro?demo&state=signup.code-expired`. A lista completa está no botão **Demo**.
+
+## Se algo não funcionar
+
+| Sintoma | Solução |
+|---|---|
+| Ficou preso num bloqueio | Botão **Demo** > **Reiniciar demonstração** (ou **Modo rápido**) |
+| `Port 5180 is in use` | Algo já usa a 5180. Feche o outro processo ou rode `npx vite --port 5190` |
+| Erro de versão do Node | Atualize para o Node 22.12+ |
+| Imagens ou estilos esquisitos depois de atualizar | `npm install` e `npm start` de novo |
+| A tela parece pequena numa janela baixa | É proposital: sem rolagem, a tela inteira se ajusta à janela (a partir de 1024 px de altura fica no tamanho do Figma) |
+
+## Para quem desenvolve
+
+```bash
+npm run build       # gera a versão de produção (dist/)
+npm run preview     # abre a versão de produção em http://localhost:5180
+npm test            # testes de unidade e de jornada (vitest)
+npm run test:e2e    # testes em navegador real (Playwright): jornadas, layout sem rolagem
+                    #   (49 estados x 8 janelas) e acessibilidade (axe, WCAG 2.1 AA)
+npm run typecheck && npm run lint
+npm run images      # regenera as ilustrações em WebP a partir de design-source/
+```
+
+Na primeira vez que for rodar o `test:e2e`: `npx playwright install chromium`.
+
+| Pasta | O que é |
+|---|---|
+| `tokens/figma-tokens.json` | **Fonte da verdade** dos tokens do design system (cor Light/Dark, espaço, raio, borda, motion, tipografia, elevação). |
+| `scripts/generate-tokens.mjs` | Gera `src/styles/tokens.css` (nome mecânico: `text/base/primary` vira `--text-base-primary`). **Nunca editar o `tokens.css` à mão**; rode `npm run tokens` (já roda sozinho no `npm start`). |
+| `src/components/ui` | Componentes do DS: `Button`, `TextField`, `PasswordField`, `Checkbox`, `TextLink`, `SocialButton`, `InlineMessage`, `CodeSlots`, `Reveal`, etc., com todos os estados (hover, foco, erro, carregando...). |
+| `src/components/auth` | Composições: `AuthLayout`, `AuthHeader`, `StepIndicator`, `ResendCode`, `PasswordRequirements`, `SocialLogin`... |
+| `src/features/auth` | Os fluxos (`login`, `recovery`, `signup`), etapas compartilhadas (`shared/`), o backend simulado (`mock/`) e as validações. |
+| `src/features/demo` | O guia de demonstração e o registro dos 49 estados (`scenarios.ts`). |
+| `e2e/` | Testes em navegador real. |
+| `design-source/` | Ilustrações originais do Figma. |
+| `docs/decisions.md` | Decisões técnicas e pendências para o design. |
+
+Estilo: CSS Modules + variáveis CSS (sem Tailwind). Os nomes das propriedades dos componentes espelham as variants do Figma.
