@@ -7,7 +7,7 @@
 3. **Validação ao sair do campo** (`onTouched`), nunca a cada tecla; revalida no envio.
 4. **Erro de credencial marca os dois campos sem dizer qual errou** (descrição do `LoginForm` no Figma: não revela se a conta existe).
 5. **Uma ilustração por fluxo** (o Figma troca de cena entre estados do Login).
-6. **GIF da personagem carrega depois do `load`** da página, com fade, e some com "reduzir movimento".
+6. **Ilustração sem "pisca" e em alta qualidade.** No Figma a personagem existe só no GIF (256 cores, recortado em polígono) e a cena de fundo vem sem ela; carregar o GIF depois do `load` fazia a personagem sumir e reaparecer a cada tela. Agora são 3 camadas geradas por `npm run images`: **cena** (WebP 98), **personagem** em PNG 24 bits (WebP sem perdas, aparece junto com a cena) e um **recorte animado só do cabelo, das mãos e do celular** (o que de fato se mexe), reconstruído em cores plenas e sem emenda (diferença 0 nas bordas). Tudo fica montado no `AuthShell`, uma rota de layout: a ilustração não recarrega entre Login, Cadastro e Recuperação; a troca de cena é um fade sem "buraco". Com "reduzir movimento" só ficam cena e personagem. Peso por cena: ~1,8 MB (antes 2 a 4 MB, com pior qualidade).
 7. **Foco vai para o `h1`** a cada troca de tela/etapa (regra de SPA do `keyboard-and-focus`).
 
 8. **O cadastro nunca diz que o e-mail já existe** (descrição do `SignUpForm`: anti-enumeração de contas) e nunca altera uma conta existente. Mesmo princípio da recuperação: a resposta é sempre a mesma.
@@ -21,6 +21,7 @@
 
 15. **Sem rolagem vertical, em nenhuma janela.** A tela de autenticação é um "palco" de 1024 de altura (a do frame do Figma e a do estado mais alto, o cadastro com erros) que reduz inteiro, na mesma proporção, quando a janela é menor (`useFitScale`, fator `--fit`). A partir de 1024 de altura o fator é 1 (idêntico ao Figma; em janelas mais altas o conteúdo fica centralizado). Antes, o corpo do cartão transbordava por cima do logo (`flex: 1 1 0` + `min-height: 0`) e, depois da primeira correção, a página rolava; as duas coisas acabaram. Um teste abre os 49 estados em 8 tamanhos de janela (de 900x600 a 1920x1080) e exige zero rolagem, tudo dentro da janela e nada sobreposto. **Contrapartida:** em janelas baixas o texto fica proporcionalmente menor (0,70 a 720 px de altura) em vez de rolar.
 16. **Mensagens e helper texts entram e saem com animação de altura** (`Reveal`): o item recolhido ocupa zero de verdade (margem negativa igual ao gap do pai), sem "pulo" de layout. Cada etapa entra com fade e leve subida.
+16b. **Barra compacta do guia:** ao iniciar o passeio o painel recolhe e sobra uma barra translúcida no canto superior esquerdo (anterior, pausar, próximo, ocultar). `Alt + D` oculta ou mostra tudo, para apresentar só com a tela.
 17. **Navegador de estados (`?demo&state=...`)** para percorrer tudo numa apresentação sem provocar bloqueios nem decorar códigos. Estados abrem congelados; `Alt + ← / →` e passeio automático.
 18. **Conta principal da demonstração:** `test@gmail.com` / `test@2026`. Códigos: `123456` correto, `111111` (qualquer outro) incorreto, `000000` expirado.
 

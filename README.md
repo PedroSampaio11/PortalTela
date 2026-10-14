@@ -24,13 +24,15 @@ Para parar: `Ctrl + C` no terminal.
 1. Abra **http://localhost:5180/entrar?demo**.
 2. Clique no botão **Demo** (canto inferior esquerdo).
 3. Escolha um estado na lista e ele abre na hora, ou use **Próximo** / **Anterior**.
-4. Para ver tudo em sequência, clique em **Passeio automático** (um estado a cada 3,5 s).
+4. Para ver tudo em sequência, clique em **Passeio automático** (um estado a cada 3,5 s). O painel **recolhe sozinho** e sobra
+   só uma barra compacta no canto superior esquerdo (anterior, pausar, próximo).
 
 | Quero | Faça |
 |---|---|
 | Ver **qualquer** estado direto (erro, bloqueio, carregando...) | Botão **Demo**, escolha o estado |
 | Passar de um para o próximo | **Alt + →** (voltar: **Alt + ←**) |
-| Ver todos sozinhos | **Passeio automático** |
+| Ver todos sozinhos | **Passeio automático** (o painel recolhe e fica só a barra) |
+| Apresentar só com a tela, sem o guia por cima | **Ocultar** (ou o × da barra); **Alt + D** mostra de novo |
 | Usar o fluxo de verdade (digitando) | Use as credenciais da tabela abaixo |
 | Não esperar nada (reenvio e bloqueio rápidos) | Marque **Modo rápido** no guia |
 | Voltar tudo ao começo | **Reiniciar demonstração** no guia |
@@ -83,7 +85,7 @@ npm test            # testes de unidade e de jornada (vitest)
 npm run test:e2e    # testes em navegador real (Playwright): jornadas, layout sem rolagem
                     #   (49 estados x 8 janelas) e acessibilidade (axe, WCAG 2.1 AA)
 npm run typecheck && npm run lint
-npm run images      # regenera as ilustrações em WebP a partir de design-source/
+npm run images      # regenera as ilustrações (cena, personagem e recorte animado) a partir de design-source/
 ```
 
 Na primeira vez que for rodar o `test:e2e`: `npx playwright install chromium`.
@@ -97,7 +99,7 @@ Na primeira vez que for rodar o `test:e2e`: `npx playwright install chromium`.
 | `src/features/auth` | Os fluxos (`login`, `recovery`, `signup`), etapas compartilhadas (`shared/`), o backend simulado (`mock/`) e as validações. |
 | `src/features/demo` | O guia de demonstração e o registro dos 49 estados (`scenarios.ts`). |
 | `e2e/` | Testes em navegador real. |
-| `design-source/` | Ilustrações originais do Figma. |
+| `design-source/` | Camadas originais do Figma de cada cena (`plate`, `character`, `animation.gif`). |
 | `docs/decisions.md` | Decisões técnicas e pendências para o design. |
 
 Estilo: CSS Modules + variáveis CSS (sem Tailwind). Os nomes das propriedades dos componentes espelham as variants do Figma.

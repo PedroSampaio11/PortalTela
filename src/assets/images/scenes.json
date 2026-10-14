@@ -1,0 +1,26 @@
+{
+  "login": {
+    "width": 1440,
+    "height": 1024,
+    "frames": 97,
+    "frameMs": 40,
+    "motion": {
+      "x": 213,
+      "y": 154,
+      "width": 225,
+      "height": 296
+    }
+  },
+  "signup": {
+    "width": 1469,
+    "height": 1071,
+    "frames": 97,
+    "frameMs": 40,
+    "motion": {
+      "x": 281,
+      "y": 256,
+      "width": 215,
+      "height": 289
+    }
+  }
+}

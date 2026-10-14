@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test'
+import sharp from 'sharp'
 import { DEMO_STATES, demoHref } from '../src/features/demo/scenarios'
 
 /**
@@ -57,12 +58,23 @@ for (const viewport of VIEWPORTS) {
               break
             }
           }
-          // O cartão cresce com o conteúdo: nenhum filho da coluna pode passar do fim do cartão.
+          // nenhum filho da coluna pode passar do fim do cartão.
           if (rect(copyright).bottom > cardRect.bottom + 1) problems.push('copyright fora do cartão')
           return problems
         })
 
         expect(report, `${state.id} @ ${viewport.name}`).toEqual([])
+
+        // O cartão tem de estar VISÍVEL por cima da ilustração. Confere os pixels de verdade (o hit-test não serve:
+        // a ilustração tem pointer-events: none e seria ignorada mesmo cobrindo o cartão).
+        const card = await page.locator('main').evaluate((main) => {
+          const r = main.parentElement!.getBoundingClientRect()
+          return { x: Math.max(0, r.x), y: Math.max(0, r.y), width: Math.min(r.width, window.innerWidth - Math.max(0, r.x)), height: Math.min(r.height, window.innerHeight - Math.max(0, r.y)) }
+        })
+        const { data } = await sharp(await page.screenshot({ clip: card })).removeAlpha().raw().toBuffer({ resolveWithObject: true })
+        let white = 0
+        for (let i = 0; i < data.length; i += 3) if (data[i]! > 235 && data[i + 1]! > 235 && data[i + 2]! > 235) white++
+        expect(white / (data.length / 3), `${state.id} @ ${viewport.name}: cartão encoberto pela ilustração`).toBeGreaterThan(0.4)
       })
     }
   })
@@ -104,8 +116,18 @@ test.describe('navegador de estados', () => {
     await page.goto(demoHref('login.default'))
     await page.getByRole('button', { name: /^Demo/ }).click()
     await page.getByRole('button', { name: 'Passeio automático' }).click()
+    // Ao iniciar, o painel recolhe sozinho e sobra só a barra compacta.
+    await expect(page.getByRole('region', { name: 'Guia de demonstração' })).toHaveCount(0)
+    await expect(page.getByRole('button', { name: 'Passeio: pausar' })).toBeVisible()
     await expect(page).toHaveURL(/state=login\.validation/, { timeout: 8_000 })
-    await page.getByRole('button', { name: 'Pausar passeio' }).click()
+    await page.getByRole('button', { name: 'Passeio: pausar' }).click()
+    await expect(page.getByRole('button', { name: 'Passeio: iniciar' })).toBeVisible()
+
+    // Ocultar some com tudo; Alt+D traz de volta.
+    await page.getByRole('button', { name: 'Ocultar guia' }).click()
+    await expect(page.getByRole('button', { name: /^Demo/ })).toHaveCount(0)
+    await page.keyboard.press('Alt+KeyD')
+    await expect(page.getByRole('button', { name: /^Demo/ })).toBeVisible()
   })
 
   test('estados congelados continuam interativos', async ({ page }) => {

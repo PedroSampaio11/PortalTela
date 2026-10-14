@@ -1,12 +1,11 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { AccountPrompt } from '@/components/auth/AccountPrompt'
-import { AuthLayout } from '@/components/auth/AuthLayout'
+import { AuthCard } from '@/components/auth/AuthCard'
 import { AuthResult } from '@/components/auth/AuthResult'
 import { StepIndicator } from '@/components/auth/StepIndicator'
 import { getSignUpScenario } from '@/features/demo/scenarios'
 import { useDemoScenario } from '@/features/demo/useDemoScenario'
-import { signupIllustration } from '../illustrations'
 import { newLockEnd, registerAccount } from '../mock/authApi'
 import { signupCodeFlow } from '../mock/codeFlow'
 import { CodeStep } from '../shared/CodeStep'
@@ -53,9 +52,8 @@ export function SignUpPage() {
     step === 'details' ? <StepIndicator total={3} current={1} /> : step === 'code' ? <StepIndicator total={3} current={2} /> : step === 'password' ? <StepIndicator total={3} current={3} /> : undefined
 
   return (
-    <AuthLayout
+    <AuthCard
       stepKey={step}
-      illustration={signupIllustration}
       progress={progress}
       backTo={step === 'details' ? '/entrar' : undefined}
       backLabel={step === 'details' ? 'Voltar para o login' : 'Trocar e-mail'}
@@ -103,6 +101,6 @@ export function SignUpPage() {
         />
       )}
       {step === 'done' && <AuthResult title="Conta criada" description="Sua conta está pronta. Vamos personalizar o portal para você." />}
-    </AuthLayout>
+    </AuthCard>
   )
 }

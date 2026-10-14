@@ -37,6 +37,7 @@ export function DemoGuide() {
   const [open, setOpen] = useState(false)
   const [fast, setFast] = useState(isFastMode)
   const [playing, setPlaying] = useState(false)
+  const [hidden, setHidden] = useState(false)
   const [copied, setCopied] = useState<string | null>(null)
   const panelId = useId()
   const headingRef = useRef<HTMLHeadingElement>(null)
@@ -75,6 +76,11 @@ export function DemoGuide() {
   useEffect(() => {
     if (!enabled) return
     const onKey = (event: KeyboardEvent) => {
+      if (event.altKey && event.code === 'KeyD') {
+        event.preventDefault()
+        setHidden((value) => !value)
+        return
+      }
       if (!event.altKey || (event.key !== 'ArrowRight' && event.key !== 'ArrowLeft')) return
       event.preventDefault()
       const target = indexRef.current + (event.key === 'ArrowRight' ? 1 : -1)
@@ -102,7 +108,7 @@ export function DemoGuide() {
     if (open) activeRef.current?.scrollIntoView({ block: 'nearest' })
   }, [open, currentId])
 
-  if (!enabled) return null
+  if (!enabled || hidden) return null
 
   async function copy(value: string) {
     try {
@@ -133,9 +139,14 @@ export function DemoGuide() {
             <h2 id={`${panelId}-title`} ref={headingRef} tabIndex={-1} className={styles.title}>
               Guia de demonstração
             </h2>
-            <button type="button" className={styles.close} onClick={() => setOpen(false)} aria-label="Fechar guia">
-              ×
-            </button>
+            <div className={styles.headerActions}>
+              <button type="button" className={styles.chip} onClick={() => setHidden(true)} title="Esconde o guia por completo. Alt + D mostra de novo">
+                Ocultar
+              </button>
+              <button type="button" className={styles.close} onClick={() => setOpen(false)} aria-label="Minimizar guia" title="Minimizar">
+                –
+              </button>
+            </div>
           </div>
 
           <div className={styles.tour} role="group" aria-label="Navegar pelos estados">
@@ -158,6 +169,8 @@ export function DemoGuide() {
                 aria-pressed={playing}
                 onClick={() => {
                   if (!playing && index === -1) go(0)
+                  // Ao iniciar o passeio, o painel recolhe sozinho: a apresentação fica só com a tela.
+                  if (!playing) setOpen(false)
                   setPlaying((value) => !value)
                 }}
               >
@@ -167,7 +180,7 @@ export function DemoGuide() {
                 Próximo ›
               </button>
             </div>
-            <p className={styles.hint}>Atalho: Alt + ← / →. Os estados abrem fixos; os campos e botões continuam funcionando.</p>
+            <p className={styles.hint}>Atalhos: Alt + ← / → navega; Alt + D mostra ou oculta o guia. Os estados abrem fixos; os campos e botões continuam funcionando.</p>
           </div>
 
           <div className={styles.states}>
@@ -225,16 +238,49 @@ export function DemoGuide() {
           </button>
         </section>
       )}
-      <button
-        ref={triggerRef}
-        type="button"
-        className={styles.trigger}
-        aria-expanded={open}
-        aria-controls={open ? panelId : undefined}
-        onClick={() => setOpen((value) => !value)}
-      >
-        Demo{current ? ` · ${index + 1}/${DEMO_STATES.length}` : ''}
-      </button>
+      <div className={styles.bar} data-playing={playing || undefined}>
+        <button
+          ref={triggerRef}
+          type="button"
+          className={styles.trigger}
+          aria-expanded={open}
+          aria-controls={open ? panelId : undefined}
+          onClick={() => setOpen((value) => !value)}
+        >
+          Demo{current ? ` · ${index + 1}/${DEMO_STATES.length}` : ''}
+        </button>
+        {!open && (
+          <>
+            {current && (
+              <span className={styles.barLabel}>
+                {FLOW_LABELS[current.flow]} › {current.label}
+              </span>
+            )}
+            <button type="button" className={styles.barButton} onClick={() => go(index - 1)} aria-label="Estado anterior" title="Anterior (Alt + ←)">
+              ‹
+            </button>
+            <button
+              type="button"
+              className={styles.barButton}
+              aria-pressed={playing}
+              aria-label={playing ? 'Passeio: pausar' : 'Passeio: iniciar'}
+              title={playing ? 'Pausar passeio' : 'Iniciar passeio automático'}
+              onClick={() => {
+                if (!playing && index === -1) go(0)
+                setPlaying((value) => !value)
+              }}
+            >
+              {playing ? '❚❚' : '▶'}
+            </button>
+            <button type="button" className={styles.barButton} onClick={() => go(index + 1)} aria-label="Próximo estado" title="Próximo (Alt + →)">
+              ›
+            </button>
+            <button type="button" className={styles.barButton} onClick={() => setHidden(true)} aria-label="Ocultar guia" title="Ocultar (Alt + D mostra de novo)">
+              ×
+            </button>
+          </>
+        )}
+      </div>
     </div>
   )
 }

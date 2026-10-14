@@ -1,11 +1,10 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { AuthLayout } from '@/components/auth/AuthLayout'
+import { AuthCard } from '@/components/auth/AuthCard'
 import { AuthResult } from '@/components/auth/AuthResult'
 import { StepIndicator } from '@/components/auth/StepIndicator'
 import { getRecoveryScenario } from '@/features/demo/scenarios'
 import { useDemoScenario } from '@/features/demo/useDemoScenario'
-import { recoveryIllustration } from '../illustrations'
 import { timing } from '../timing'
 import { recoveryCodeFlow } from '../mock/codeFlow'
 import { newLockEnd, updatePassword } from '../mock/authApi'
@@ -54,9 +53,8 @@ export function RecoveryPage() {
     step === 'email' ? <StepIndicator total={3} current={1} /> : step === 'code' ? <StepIndicator total={3} current={2} /> : step === 'password' ? <StepIndicator total={3} current={3} /> : undefined
 
   return (
-    <AuthLayout
+    <AuthCard
       stepKey={step}
-      illustration={recoveryIllustration}
       progress={progress}
       backTo={step === 'email' ? '/entrar' : undefined}
       backLabel={step === 'email' ? 'Voltar para o login' : 'Trocar e-mail'}
@@ -105,6 +103,6 @@ export function RecoveryPage() {
       {step === 'updated' && (
         <AuthResult title="Senha atualizada" description="Você já pode usar a nova senha. Vamos levar você ao portal." />
       )}
-    </AuthLayout>
+    </AuthCard>
   )
 }

@@ -56,6 +56,36 @@ describe('DemoGuide', () => {
     expect(screen.getByRole('button', { name: 'Demo' })).toBeInTheDocument()
   })
 
+  it('com o painel recolhido sobra uma barra compacta com anterior, passeio e próximo', async () => {
+    window.history.pushState({}, '', '/?demo&state=login.blocked')
+    const user = userEvent.setup()
+    render(
+      <MemoryRouter initialEntries={['/?demo&state=login.blocked']}>
+        <DemoGuide />
+      </MemoryRouter>,
+    )
+    expect(screen.queryByRole('region', { name: 'Guia de demonstração' })).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Estado anterior' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Próximo estado' })).toBeInTheDocument()
+    const tour = screen.getByRole('button', { name: 'Passeio: iniciar' })
+    await user.click(tour)
+    expect(screen.getByRole('button', { name: 'Passeio: pausar' })).toHaveAttribute('aria-pressed', 'true')
+  })
+
+  it('iniciar o passeio recolhe o painel; ocultar some com tudo e Alt+D traz de volta', async () => {
+    window.history.pushState({}, '', '/?demo')
+    const user = userEvent.setup()
+    renderGuide()
+    await user.click(screen.getByRole('button', { name: /^Demo/ }))
+    await user.click(screen.getByRole('button', { name: 'Passeio automático' }))
+    expect(screen.queryByRole('region', { name: 'Guia de demonstração' })).not.toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Ocultar guia' }))
+    expect(screen.queryByRole('button', { name: /^Demo/ })).not.toBeInTheDocument()
+    await user.keyboard('{Alt>}d{/Alt}')
+    expect(screen.getByRole('button', { name: /^Demo/ })).toBeInTheDocument()
+  })
+
   it('modo rápido encurta latência e reenvio; desligar volta ao normal', async () => {
     window.history.pushState({}, '', '/?demo')
     const user = userEvent.setup()

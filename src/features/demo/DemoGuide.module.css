@@ -1,28 +1,78 @@
 /* Ferramenta de apresentação: visual neutro, discreto, no canto inferior esquerdo. */
 .root {
   position: fixed;
-  bottom: var(--component-md);
+  /* Canto superior esquerdo: sobre a arte, longe da legenda e do cartão. O painel abre para baixo. */
+  top: var(--component-md);
   left: var(--component-md);
   z-index: 100;
   display: flex;
-  flex-direction: column;
+  flex-direction: column-reverse;
   align-items: flex-start;
   gap: var(--component-xs);
 }
 
-.trigger {
-  min-height: var(--control-touch-min);
-  padding: 0 var(--component-lg);
-  border: 0;
+/* Barra compacta: o painel recolhido (ou o passeio em andamento) vira só isto, bem discreto. */
+.bar {
+  display: flex;
+  align-items: center;
+  gap: var(--component-2xs);
+  padding: var(--component-2xs);
   border-radius: var(--radius-full);
   background: var(--surface-base-solid);
   color: var(--text-base-primary-inverse);
-  font: var(--type-label-sm-semibold);
   box-shadow: var(--elevation-3);
+  transition: opacity var(--duration-component-slow) var(--easing-standard);
 }
 
-.trigger:hover {
+/* Em passeio fica translúcida; volta a 100% ao passar o mouse ou focar. */
+.bar[data-playing]:not(:hover):not(:focus-within) {
+  opacity: 0.72;
+}
+
+.trigger {
+  min-height: 36px;
+  padding: 0 var(--component-md);
+  border: 0;
+  border-radius: var(--radius-full);
+  background: transparent;
+  color: inherit;
+  font: var(--type-label-sm-semibold);
+  white-space: nowrap;
+}
+
+.trigger:hover,
+.barButton:hover {
   background: var(--surface-base-inactive);
+}
+
+.barLabel {
+  max-width: 220px;
+  overflow: hidden;
+  padding: 0 var(--component-xs);
+  font: var(--type-body-xs-regular);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.barButton {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: transparent;
+  color: inherit;
+  font-size: 14px;
+  line-height: 1;
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: var(--component-xs);
 }
 
 .panel {
@@ -31,7 +81,7 @@
   gap: var(--component-md);
   width: 440px;
   /* Nunca passa da tela: rola por dentro, sem empurrar nada da página. */
-  max-height: calc(100dvh - 96px);
+  max-height: calc(100dvh - 88px);
   overflow-y: auto;
   padding: var(--component-lg);
   background: var(--surface-base-elevated);

@@ -1,0 +1,75 @@
+/* Cartão do AuthLayout (DS 3265:56657): 688 de largura (560 de conteúdo), raio xl, 3 zonas fixas. */
+.card {
+  display: flex;
+  flex: 1 1 0;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--component-xs);
+  min-width: 0;
+  padding: var(--component-xl) var(--layout-sm);
+  background: var(--surface-base-elevated);
+  border-radius: var(--radius-xl);
+}
+
+.topBar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--component-md);
+  width: 100%;
+}
+
+.topRow {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.slot {
+  display: flex;
+  flex: none;
+  width: var(--control-touch-min);
+  height: var(--control-touch-min);
+}
+
+.logoSlot {
+  display: flex;
+  flex: 1 1 0;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+}
+
+.body {
+  display: flex;
+  /* O corpo nunca encolhe abaixo do conteúdo (antes `flex: 1 1 0` + `min-height: 0` fazia o conteúdo
+     transbordar por cima do logo). A altura do palco já comporta o estado mais alto, então não rola. */
+  flex: 1 0 auto;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: var(--component-md) 0;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--component-lg);
+  min-width: var(--row-min-width);
+  width: 100%;
+  animation: step-enter var(--duration-layout-base) var(--easing-entrance) both;
+}
+
+@keyframes step-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+.copyright {
+  width: 100%;
+  font: var(--type-body-xs-regular);
+  color: var(--text-base-secondary);
+  text-align: center;
+}

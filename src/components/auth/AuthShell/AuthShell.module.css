@@ -1,0 +1,130 @@
+/* AuthShell: painel da marca + coluna do cartão. 1440 x 1024 no Figma, mínimo 1024 (breakpoint/desktop).
+ *
+ * SEM rolagem: a janela é o limite. O "palco" tem a proporção de projeto (altura 1024, a do estado mais
+ * alto) e, quando a janela é menor, reduz inteiro pelo fator `--fit` (ver useFitScale). Janela de 1024 de
+ * altura ou mais: fator 1, idêntico ao Figma (em janelas mais altas o conteúdo fica centralizado). */
+.viewport {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  background: var(--surface-brand-solid);
+}
+
+.stage {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: calc(100% / var(--fit));
+  height: calc(100% / var(--fit));
+  transform: scale(var(--fit));
+  transform-origin: 0 0;
+}
+
+.layout {
+  position: relative;
+  display: flex;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--surface-brand-solid);
+}
+
+/* ---------- Ilustração ---------- */
+.backdrop {
+  position: absolute;
+  inset: 0;
+  /* Unidades cqw/cqh: a arte "cobre" o painel (como object-fit: cover) mantendo as 3 camadas alinhadas. */
+  container-type: size;
+  overflow: hidden;
+  pointer-events: none;
+  /* Camada própria e SEMPRE abaixo do conteúdo (legenda e cartão têm z-index maior). */
+  isolation: isolate;
+  z-index: 0;
+  opacity: 0;
+  transition: opacity var(--duration-layout-slow) var(--easing-entrance);
+}
+
+/* Entra de uma vez só quando cena e personagem já foram decodificadas. */
+.backdrop[data-ready] {
+  opacity: 1;
+}
+
+.scene {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: max(100cqw, calc(100cqh * var(--ratio)));
+  aspect-ratio: var(--ratio);
+  transform: translate(-50%, -50%);
+  /* A cena que sai só some depois de a que entra terminar de aparecer: sem "buraco" no meio da troca. */
+  opacity: 0;
+  z-index: 0;
+  transition: opacity 0s linear 600ms;
+}
+
+.scene[data-active] {
+  opacity: 1;
+  z-index: 1;
+  transition: opacity 600ms var(--easing-standard);
+}
+
+.layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  user-select: none;
+}
+
+/* Recorte animado (cabelo, mãos e celular) na posição da arte original; entra com fade. */
+.motion {
+  position: absolute;
+  left: var(--mx);
+  top: var(--my);
+  width: var(--mw);
+  height: var(--mh);
+  max-width: none;
+  opacity: 0;
+  transition: opacity var(--duration-layout-slow) var(--easing-entrance);
+}
+
+.motion[data-loaded] {
+  opacity: 1;
+}
+
+.brandPanel {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex: 1 1 0;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--component-xs);
+  min-width: 0;
+  padding: var(--layout-sm);
+  text-align: center;
+  color: var(--text-base-primary-inverse);
+}
+
+.caption {
+  width: 100%;
+  font: var(--type-title-sm-semibold);
+}
+
+.captionDescription {
+  width: 100%;
+  font: var(--type-body-sm-regular);
+}
+
+.cardColumn {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex: none;
+  width: 720px;
+  padding: var(--component-xl) var(--component-xl) var(--component-xl) 0;
+}

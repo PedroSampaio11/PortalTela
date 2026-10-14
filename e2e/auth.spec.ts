@@ -109,20 +109,87 @@ test.describe('login', () => {
   })
 })
 
-test.describe('ilustração viva', () => {
-  test('o GIF da personagem entra depois do carregamento', async ({ page }) => {
+test.describe('ilustração', () => {
+  test('cena, personagem e recorte animado carregam inteiros, em alta qualidade', async ({ page }) => {
     await page.goto('/entrar')
-    await expect(page.locator('img[src*="login-animated"]')).toHaveCount(1, { timeout: 10_000 })
+    const layers = page.locator('[data-scene="balcony"] [data-layer]')
+    await expect(layers).toHaveCount(3)
+    await expect(page.locator('[data-scene="balcony"] [data-layer="motion"][data-loaded]')).toHaveCount(1, { timeout: 10_000 })
+    const info = await layers.evaluateAll((imgs) =>
+      (imgs as HTMLImageElement[]).map((img) => ({ layer: img.dataset.layer, ok: img.complete && img.naturalWidth > 0, w: img.naturalWidth })),
+    )
+    expect(info.every((i) => i.ok)).toBe(true)
+    // A cena e a personagem têm a resolução original do Figma (1440 de largura): nada é reduzido.
+    expect(info.find((i) => i.layer === 'plate')!.w).toBe(1440)
+    expect(info.find((i) => i.layer === 'character')!.w).toBe(1440)
   })
 
-  test('com "reduzir movimento" só a cena estática é usada', async ({ browser }) => {
+  test('as camadas NÃO remontam nem recarregam ao navegar entre telas e estados', async ({ page }) => {
+    await page.goto('/entrar?demo')
+    await expect(page.locator('[data-layer="motion"][data-loaded]').first()).toBeAttached({ timeout: 10_000 })
+    await page.evaluate(() => {
+      ;(window as unknown as { __layers: Element[] }).__layers = [...document.querySelectorAll('[data-layer]')]
+    })
+    const same = () =>
+      page.evaluate(() => {
+        const before = (window as unknown as { __layers: Element[] }).__layers
+        const now = [...document.querySelectorAll('[data-layer]')]
+        return before.length === now.length && before.every((node, i) => node === now[i] && node.isConnected)
+      })
+
+    await page.getByRole('link', { name: 'Criar conta' }).click()
+    await expect(page).toHaveURL(/\/cadastro/)
+    expect(await same()).toBe(true)
+    await page.getByRole('link', { name: 'Entrar' }).click()
+    await expect(page).toHaveURL(/\/entrar/)
+    expect(await same()).toBe(true)
+    // Navegador de estados: pula entre estados e fluxos.
+    await page.keyboard.press('Alt+ArrowRight')
+    await page.keyboard.press('Alt+ArrowRight')
+    await page.keyboard.press('Alt+ArrowRight')
+    expect(await same()).toBe(true)
+  })
+
+  test('a troca de cena não deixa "buraco": a cobertura nunca cai', async ({ page }) => {
+    await page.goto('/entrar')
+    await expect(page.locator('[data-layer="motion"][data-loaded]').first()).toBeAttached({ timeout: 10_000 })
+    await page.evaluate(() => {
+      const w = window as unknown as { __minCoverage: number }
+      w.__minCoverage = 1
+      const scenes = [...document.querySelectorAll<HTMLElement>('[data-scene]')]
+      const tick = () => {
+        // As cenas estão empilhadas: a cobertura é 1 - produto de (1 - opacidade).
+        const coverage = 1 - scenes.reduce((acc, el) => acc * (1 - Number(getComputedStyle(el).opacity)), 1)
+        w.__minCoverage = Math.min(w.__minCoverage, coverage)
+        requestAnimationFrame(tick)
+      }
+      requestAnimationFrame(tick)
+    })
+    await page.getByRole('link', { name: 'Criar conta' }).click()
+    await expect(page).toHaveURL(/\/cadastro/)
+    await page.waitForTimeout(1200)
+    const min = await page.evaluate(() => (window as unknown as { __minCoverage: number }).__minCoverage)
+    expect(min).toBeGreaterThan(0.999)
+    await expect(page.locator('[data-scene="stairs"]')).toHaveAttribute('data-active', 'true')
+  })
+
+  test('Login e Recuperação usam a mesma cena (sem troca nenhuma entre elas)', async ({ page }) => {
+    await page.goto('/entrar')
+    await expect(page.locator('[data-scene="balcony"]')).toHaveAttribute('data-active', 'true')
+    await page.getByRole('link', { name: 'Esqueci minha senha' }).click()
+    await expect(page).toHaveURL(/recuperar-senha/)
+    await expect(page.locator('[data-scene="balcony"]')).toHaveAttribute('data-active', 'true')
+  })
+
+  test('com "reduzir movimento" só a cena e a personagem (sem recorte animado)', async ({ browser }) => {
     const context = await browser.newContext({ reducedMotion: 'reduce', viewport: { width: 1440, height: 1024 } })
     const page = await context.newPage()
     await page.goto('/entrar')
     await page.waitForLoadState('load')
     await page.waitForTimeout(800)
-    await expect(page.locator('img[src*="login-still"]')).toHaveCount(1)
-    await expect(page.locator('img[src*="animated"]')).toHaveCount(0)
+    await expect(page.locator('[data-layer="plate"]')).toHaveCount(2)
+    await expect(page.locator('[data-layer="character"]')).toHaveCount(2)
+    await expect(page.locator('[data-layer="motion"]')).toHaveCount(0)
     await context.close()
   })
 })

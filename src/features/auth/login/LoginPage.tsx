@@ -4,14 +4,13 @@ import { useForm } from 'react-hook-form'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { AccountPrompt } from '@/components/auth/AccountPrompt'
 import { AuthHeader } from '@/components/auth/AuthHeader'
-import { AuthLayout } from '@/components/auth/AuthLayout'
+import { AuthCard } from '@/components/auth/AuthCard'
 import { SocialLogin } from '@/components/auth/SocialLogin'
 import { Button, Checkbox, InlineMessageSlot, PasswordField, TextField, TextLink } from '@/components/ui'
 import { useNow } from '@/hooks/useNow'
 import { getLoginScenario } from '@/features/demo/scenarios'
 import { useDemoScenario } from '@/features/demo/useDemoScenario'
 import { formatWait } from '../duration'
-import { loginIllustration } from '../illustrations'
 import { loginSchema } from '../schemas'
 import type { LoginValues } from '../schemas'
 import { useLogin } from './useLogin'
@@ -80,7 +79,7 @@ export function LoginPage() {
   }
 
   return (
-    <AuthLayout illustration={loginIllustration} backTo="/" backLabel="Voltar para o início">
+    <AuthCard backTo="/" backLabel="Voltar para o início">
       <AuthHeader title="Entrar" description="Acesse sua conta para acompanhar o que importa para você." />
 
       <InlineMessageSlot id={messageId} hasIcon message={message} />
@@ -146,6 +145,6 @@ export function LoginPage() {
       />
 
       <AccountPrompt intent="sign-up" to="/cadastro" />
-    </AuthLayout>
+    </AuthCard>
   )
 }
