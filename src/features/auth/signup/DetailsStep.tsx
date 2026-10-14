@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
-import { z } from 'zod'
 import { AccountPrompt } from '@/components/auth/AccountPrompt'
 import { AuthHeader } from '@/components/auth/AuthHeader'
 import { ConsentRow } from '@/components/auth/ConsentRow'
@@ -11,18 +10,9 @@ import { useSocialAuth } from '@/hooks/useSocialAuth'
 import type { DetailsScenario } from '@/features/demo/scenarios'
 import { NETWORK_FAILURE_EMAIL } from '../mock/authApi'
 import { signupCodeFlow } from '../mock/codeFlow'
+import { signUpSchema } from '../schemas'
+import type { SignUpDetails } from '../schemas'
 import styles from '../shared/steps.module.css'
-
-const schema = z.object({
-  name: z
-    .string()
-    .trim()
-    .refine((value) => value.split(/\s+/).filter((part) => part.length > 0).length >= 2, 'Informe nome e sobrenome.'),
-  email: z.string().trim().pipe(z.email('Digite um e-mail válido, como nome@email.com.')),
-  terms: z.boolean().refine((value) => value, 'Aceite os termos para continuar.'),
-})
-
-export type SignUpDetails = z.infer<typeof schema>
 
 interface DetailsStepProps {
   defaults: { name: string; email: string }
@@ -44,7 +34,7 @@ export function DetailsStep({ defaults, scenario, onSent, onSocialSuccess }: Det
     trigger,
     formState: { errors, isValid, submitCount },
   } = useForm<SignUpDetails>({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(signUpSchema),
     mode: 'onTouched',
     shouldFocusError: !scenario,
     defaultValues: {

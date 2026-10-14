@@ -42,4 +42,4 @@
 
 ## Otimização feita
 
-- Ilustrações em WebP (22,6 MB para 3,2 MB; primeiro paint de 216 a 251 kB). Originais do Figma em `design-source/`; reprodutível com `node scripts/optimize-images.mjs`.
+- Ilustrações em WebP (22,6 MB para 3,2 MB; primeiro paint de 216 a 251 kB). Originais do Figma em `design-source/`; reprodutível com `npm run images` (`scripts/build-scenes.mjs`).

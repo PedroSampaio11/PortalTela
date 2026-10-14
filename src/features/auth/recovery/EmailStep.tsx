@@ -1,17 +1,14 @@
 import { useEffect, useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
-import { z } from 'zod'
 import { AuthHeader } from '@/components/auth/AuthHeader'
 import { Button, InlineMessage, InlineMessageSlot, TextField } from '@/components/ui'
 import type { EmailScenario } from '@/features/demo/scenarios'
 import { NETWORK_FAILURE_EMAIL } from '../mock/authApi'
 import { recoveryCodeFlow } from '../mock/codeFlow'
-import { emailSchema } from '../schemas'
+import { recoveryEmailSchema } from '../schemas'
+import type { RecoveryEmailValues } from '../schemas'
 import styles from '../shared/steps.module.css'
-
-const schema = z.object({ email: emailSchema })
-type Values = z.infer<typeof schema>
 
 interface EmailStepProps {
   defaultEmail: string
@@ -30,7 +27,7 @@ export function EmailStep({ defaultEmail, scenario, onSent }: EmailStepProps) {
     handleSubmit,
     trigger,
     formState: { errors, isValid },
-  } = useForm<Values>({ resolver: zodResolver(schema), mode: 'onTouched', defaultValues: { email: scenario?.email ?? defaultEmail } })
+  } = useForm<RecoveryEmailValues>({ resolver: zodResolver(recoveryEmailSchema), mode: 'onTouched', defaultValues: { email: scenario?.email ?? defaultEmail } })
 
   useEffect(() => {
     if (scenario?.validate) void trigger()
