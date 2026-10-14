@@ -28,6 +28,7 @@ export function LoginPage() {
   const scenario = useDemoScenario('login', getLoginScenario)
   const prefill = (location.state as { email?: string } | null)?.email ?? scenario?.email ?? ''
   const messageId = useId()
+  const rememberErrorId = useId()
 
   const goHome = useCallback(() => navigate('/', { replace: true }), [navigate])
   const login = useLogin({
@@ -42,11 +43,11 @@ export function LoginPage() {
     handleSubmit,
     getValues,
     trigger,
-    formState: { errors, isValid },
+    formState: { errors, isValid, submitCount },
   } = useForm<LoginValues>({
     resolver: zodResolver(loginSchema),
     mode: 'onTouched', // valida ao sair do campo; revalida a cada tecla só depois do 1º erro
-    defaultValues: { email: prefill, password: scenario?.password ?? '', remember: false },
+    defaultValues: { email: prefill, password: scenario?.password ?? '', remember: scenario?.remember ?? false },
   })
 
   // Estado "campos obrigatórios" da demonstração: mostra os erros sem mexer no foco.
@@ -73,6 +74,9 @@ export function LoginPage() {
         : null
   // Erro de credencial marca os dois campos sem dizer qual errou (não revela se a conta existe).
   const fieldsInError = hasServerError && login.errorKind === 'credentials'
+
+  // O erro da caixa só aparece depois de tentar entrar (não ao tabular por ela), como o aceite dos termos.
+  const rememberError = submitCount > 0 || scenario?.validate ? errors.remember?.message : undefined
 
   const submit = handleSubmit(login.submit)
 
@@ -117,10 +121,22 @@ export function LoginPage() {
         </div>
 
         <div className={styles.options}>
-          <Checkbox label="Manter-me conectado" disabled={blocked} {...register('remember')} />
+          <Checkbox
+            label="Manter-me conectado"
+            disabled={blocked}
+            aria-invalid={rememberError ? true : undefined}
+            aria-describedby={rememberError ? rememberErrorId : undefined}
+            {...register('remember')}
+          />
           <TextLink to="/recuperar-senha" state={{ email: getValues('email') }}>
             Esqueci minha senha
           </TextLink>
+          {/* Sobre o espaço entre a linha e o botão: o erro aparece sem mexer na altura da tela. */}
+          {rememberError && (
+            <p id={rememberErrorId} className={styles.optionsError}>
+              {rememberError}
+            </p>
+          )}
         </div>
 
         {blocked ? (

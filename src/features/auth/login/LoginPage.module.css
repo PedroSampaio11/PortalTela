@@ -14,8 +14,27 @@
 }
 
 .options {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
   width: 100%;
+}
+
+/* Cabe no espaço entre a linha de opções e o botão (gap-lg), sem empurrar nada. */
+.optionsError {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 2px;
+  font: var(--type-body-sm-regular);
+  color: var(--text-status-danger);
+  animation: options-error-in var(--duration-component-base) var(--easing-entrance) both;
+}
+
+@keyframes options-error-in {
+  from {
+    opacity: 0;
+    transform: translateY(-3px);
+  }
 }

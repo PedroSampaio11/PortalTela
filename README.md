@@ -46,7 +46,7 @@ Os estados abrem **fixos** (nada avança sozinho) para dar tempo de mostrar, mas
 
 | Ação | Resultado |
 |---|---|
-| E-mail `test@gmail.com` + senha `test@2026` | **Entra** (conta principal) |
+| E-mail `test@gmail.com` + senha `test@2026` | **Entra** (conta principal). Marque **Manter-me conectado**: é obrigatório para entrar |
 | Qualquer outro e-mail ou senha | Erro. A **3ª** tentativa errada **bloqueia** (15 min; 20 s no Modo rápido) |
 | Código `123456` | **Certo**: segue para a próxima etapa |
 | Código `111111` (ou qualquer outro) | **Errado**: 3 erros bloqueiam |

@@ -81,6 +81,9 @@ test.describe('login', () => {
     await page.goto('/entrar')
     await page.getByLabel('E-mail').fill('test@gmail.com')
     await page.getByLabel('Senha', { exact: true }).fill('test@2026')
+    // "Manter-me conectado" é obrigatório: sem marcar o botão fica desabilitado.
+    await expect(page.getByRole('button', { name: 'Entrar', exact: true })).toHaveAttribute('aria-disabled', 'true')
+    await page.getByRole('checkbox', { name: 'Manter-me conectado' }).check()
     await page.getByRole('button', { name: 'Entrar', exact: true }).click()
     await expect(page.getByRole('heading', { name: 'Olá, Teste.' })).toBeVisible({ timeout: 10_000 })
   })
@@ -336,6 +339,13 @@ test.describe('interação fluida: a tela não muda de tamanho', () => {
 
     await page.getByLabel('E-mail').fill('test@gmail.com')
     await page.getByLabel('Senha', { exact: true }).fill('errada123')
+    // Tentar entrar sem "Manter-me conectado": o erro entra no espaço entre a linha e o botão, sem mover nada.
+    await page.getByRole('button', { name: 'Entrar', exact: true }).click({ force: true })
+    await expect(page.getByText('Marque "Manter-me conectado" para continuar.')).toBeVisible()
+    await page.waitForTimeout(500)
+    expect(await geometry(page)).toEqual(base)
+
+    await page.getByRole('checkbox', { name: 'Manter-me conectado' }).check()
     await page.getByRole('button', { name: 'Entrar', exact: true }).click()
     await expect(page.getByRole('alert')).toContainText('E-mail ou senha incorretos', { timeout: 10_000 })
     expect(await geometry(page)).toEqual(base)

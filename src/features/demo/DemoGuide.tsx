@@ -28,7 +28,7 @@ interface Scenario {
 
 const SCENARIOS: Scenario[] = [
   { label: 'E-mail', value: MOCK_USER.email, note: 'conta principal' },
-  { label: 'Senha', value: MOCK_USER.password, note: 'entra; outra senha erra e a 3ª bloqueia' },
+  { label: 'Senha', value: MOCK_USER.password, note: 'entra (marque "Manter-me conectado", obrigatório); outra senha erra e a 3ª bloqueia' },
   { label: 'Código correto', value: CODE_RULES.validCode, note: 'segue o fluxo' },
   { label: 'Código incorreto', value: '111111', note: 'qualquer outro; 3 erros bloqueiam' },
   { label: 'Código expirado', value: CODE_RULES.expiredCode, note: 'libera o reenvio' },

@@ -28,10 +28,12 @@ test('login: padrão, erro de validação, erro de credencial e bloqueio', async
 
   await page.getByRole('button', { name: 'Entrar', exact: true }).click({ force: true })
   await expect(page.getByText('Informe seu e-mail.')).toBeVisible()
+  await expect(page.getByText('Marque "Manter-me conectado" para continuar.')).toBeVisible()
   await audit(page, 'login com erros de campo')
 
   await page.getByLabel('E-mail').fill('ana.souza@email.com')
   await page.getByLabel('Senha', { exact: true }).fill('errada')
+  await page.getByRole('checkbox', { name: 'Manter-me conectado' }).check()
   for (let i = 0; i < 2; i++) {
     await page.getByRole('button', { name: 'Entrar', exact: true }).click()
     await expect(page.getByRole('alert')).toBeVisible({ timeout: 10_000 })

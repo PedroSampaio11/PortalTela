@@ -21,9 +21,14 @@ const email = () => screen.getByLabelText('E-mail')
 const password = () => screen.getByLabelText('Senha')
 const submit = () => screen.getByRole('button', { name: 'Entrar' })
 
+const remember = () => screen.getByRole('checkbox', { name: 'Manter-me conectado' })
+const REMEMBER_ERROR = 'Marque "Manter-me conectado" para continuar.'
+
+/** Preenche tudo o que é obrigatório para entrar (e-mail, senha e "Manter-me conectado"). */
 async function fill(user: ReturnType<typeof userEvent.setup>, e: string, p: string) {
   await user.type(email(), e)
   await user.type(password(), p)
+  await user.click(remember())
 }
 
 describe('LoginPage', () => {
@@ -48,8 +53,40 @@ describe('LoginPage', () => {
     await user.click(submit())
     expect(await screen.findByText('Informe seu e-mail.')).toBeInTheDocument()
     expect(screen.getByText('Informe sua senha.')).toBeInTheDocument()
+    expect(screen.getByText(REMEMBER_ERROR)).toBeInTheDocument()
     expect(email()).toHaveAttribute('aria-invalid', 'true')
     expect(email()).toHaveFocus()
+  })
+
+  it('"Manter-me conectado" é obrigatório para entrar: sem marcar o botão não habilita e o erro só aparece ao tentar', async () => {
+    const user = userEvent.setup()
+    renderLogin()
+    await user.type(email(), MOCK_USER.email)
+    await user.type(password(), MOCK_USER.password)
+    await user.tab() // passa pela caixa sem marcar
+    expect(screen.queryByText(REMEMBER_ERROR)).not.toBeInTheDocument()
+    expect(submit()).toHaveAttribute('aria-disabled', 'true')
+
+    await user.click(submit())
+    expect(await screen.findByText(REMEMBER_ERROR)).toBeInTheDocument()
+    expect(remember()).toHaveAttribute('aria-invalid', 'true')
+    expect(remember()).toHaveFocus()
+    expect(screen.queryByText('tela inicial')).not.toBeInTheDocument()
+    expect(getSession()).toBeNull()
+
+    await user.click(remember())
+    await waitFor(() => expect(screen.queryByText(REMEMBER_ERROR)).not.toBeInTheDocument())
+    expect(submit()).not.toHaveAttribute('aria-disabled')
+    await user.click(submit())
+    expect(await screen.findByText('tela inicial')).toBeInTheDocument()
+  })
+
+  it('o login com Google e Apple não depende da caixa', async () => {
+    const user = userEvent.setup()
+    renderLogin()
+    expect(remember()).not.toBeChecked()
+    await user.click(screen.getByRole('button', { name: /Google/ }))
+    expect(await screen.findByText('tela inicial')).toBeInTheDocument()
   })
 
   it('valida o e-mail ao sair do campo, não a cada tecla', async () => {
@@ -63,7 +100,7 @@ describe('LoginPage', () => {
     await waitFor(() => expect(screen.queryByText(/Digite um e-mail válido/)).not.toBeInTheDocument())
   })
 
-  it('habilita o envio quando os dois campos estão válidos', async () => {
+  it('habilita o envio quando e-mail, senha e "Manter-me conectado" estão preenchidos', async () => {
     const user = userEvent.setup()
     renderLogin()
     await fill(user, MOCK_USER.email, 'qualquer')

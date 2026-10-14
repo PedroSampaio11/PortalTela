@@ -91,6 +91,8 @@ export const DEMO_PASSWORD = 'test@2026'
 export interface LoginScenario {
   email?: string
   password?: string
+  /** "Manter-me conectado" marcado (obrigatório para entrar; os estados pós-envio já vêm marcados). */
+  remember?: boolean
   phase?: 'submitting' | 'error' | 'blocked' | 'socialLoading' | 'socialError'
   errorKind?: 'credentials' | 'network'
   provider?: 'google' | 'apple'
@@ -161,16 +163,16 @@ const PASSWORD: Record<string, PasswordScenario> = {
 }
 
 export function getLoginScenario(key: string): LoginScenario | undefined {
-  const full = { email: DEMO_EMAIL, password: 'senha-errada' }
+  const full = { email: DEMO_EMAIL, password: 'senha-errada', remember: true }
   switch (key) {
     case 'default':
       return {}
     case 'validation':
       return { validate: true }
     case 'filled':
-      return { email: DEMO_EMAIL, password: DEMO_PASSWORD }
+      return { email: DEMO_EMAIL, password: DEMO_PASSWORD, remember: true }
     case 'loading':
-      return { email: DEMO_EMAIL, password: DEMO_PASSWORD, phase: 'submitting' }
+      return { email: DEMO_EMAIL, password: DEMO_PASSWORD, remember: true, phase: 'submitting' }
     case 'error':
       return { ...full, phase: 'error', errorKind: 'credentials' }
     case 'network':

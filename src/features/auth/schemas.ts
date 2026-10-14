@@ -16,7 +16,8 @@ export const emailSchema = z
 export const loginSchema = z.object({
   email: emailSchema,
   password: z.string().min(1, 'Informe sua senha.'),
-  remember: z.boolean(),
+  /** Obrigatório para entrar (como o aceite dos termos no cadastro). */
+  remember: z.boolean().refine((value) => value, 'Marque "Manter-me conectado" para continuar.'),
 })
 
 export const recoveryEmailSchema = z.object({ email: emailSchema })
