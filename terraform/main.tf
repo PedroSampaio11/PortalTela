@@ -4,17 +4,19 @@
 # O DNS usa a zona Route53 portaltela.com que ja existe na conta (sem custo extra; so adiciona 2 registros).
 #
 # Uso (dentro da pasta terraform/, com a conta certa: export AWS_PROFILE=portal-tela):
-#   npm run build (na raiz do projeto) && terraform init
-#   terraform apply        # cria tudo, inclusive o DNS e o certificado (leva ~5-10 min)
+#   terraform init
+#   terraform apply        # cria a infra, o DNS, o certificado e o papel do deploy (~5-10 min)
+#   git push na main       # o GitHub Actions (.github/workflows/deploy.yml) publica o site
 #   Abra https://login-flow-v4.portaltela.com/entrar?demo
 #   Usuario: demo | Senha: terraform output -raw senha
 #
-# Atualizar o site:  npm run build && terraform apply
+# O Terraform cuida da INFRA; o GitHub Actions cuida dos ARQUIVOS do site (a cada push na main).
+# Atualizar o site:  git push na main
 # Tirar do ar (pausa, mantem a config, custo continua ~0):  terraform apply -var online=false
 # Apagar TUDO (bucket, CloudFront, certificado e os 2 registros DNS):  terraform destroy
 
 terraform {
-  required_version = ">= 1.5"
+  required_version = ">= 1.7"
   required_providers {
     aws = {
       source  = "hashicorp/aws"
@@ -41,6 +43,12 @@ variable "zone" {
   description = "Zona Route53 ja existente na conta"
   type        = string
   default     = "portaltela.com"
+}
+
+variable "github_repo" {
+  description = "Repositorio que pode publicar o site (dono/nome)"
+  type        = string
+  default     = "PedroSampaio11/PortalTela"
 }
 
 variable "usuario" {
@@ -70,29 +78,6 @@ resource "random_password" "senha" {
 }
 
 locals {
-  dist_dir = "${path.module}/../dist"
-
-  mime_types = {
-    html  = "text/html; charset=utf-8"
-    js    = "application/javascript"
-    mjs   = "application/javascript"
-    css   = "text/css"
-    json  = "application/json"
-    svg   = "image/svg+xml"
-    png   = "image/png"
-    jpg   = "image/jpeg"
-    jpeg  = "image/jpeg"
-    webp  = "image/webp"
-    avif  = "image/avif"
-    gif   = "image/gif"
-    ico   = "image/x-icon"
-    woff  = "font/woff"
-    woff2 = "font/woff2"
-    txt   = "text/plain"
-    map   = "application/json"
-  }
-
-  files = fileset(local.dist_dir, "**")
 }
 
 # --- Bucket privado (so o CloudFront le) ---
@@ -114,17 +99,14 @@ resource "aws_s3_bucket_public_access_block" "site" {
   restrict_public_buckets = true
 }
 
-resource "aws_s3_object" "files" {
-  for_each = local.files
+# Os arquivos do site agora sao publicados pelo GitHub Actions: o Terraform so os "esquece"
+# (destroy = false), sem apagar nada do bucket.
+removed {
+  from = aws_s3_object.files
 
-  bucket       = aws_s3_bucket.site.id
-  key          = each.value
-  source       = "${local.dist_dir}/${each.value}"
-  etag         = filemd5("${local.dist_dir}/${each.value}")
-  content_type = lookup(local.mime_types, reverse(split(".", each.value))[0], "application/octet-stream")
-
-  # Assets do Vite tem hash no nome (cache longo); o index.html sempre revalida.
-  cache_control = startswith(each.value, "assets/") ? "public, max-age=31536000, immutable" : "no-cache"
+  lifecycle {
+    destroy = false
+  }
 }
 
 # --- Certificado HTTPS do dominio (gratis) ---
@@ -294,4 +276,67 @@ output "usuario" {
 output "senha" {
   value     = random_password.senha.result
   sensitive = true
+}
+
+# --- Deploy pelo GitHub Actions (sem chaves salvas: o GitHub assume este papel via OIDC) ---
+
+# O provedor OIDC do GitHub ja existe na conta (compartilhado com outros projetos); so lemos.
+data "aws_iam_openid_connect_provider" "github" {
+  url = "https://token.actions.githubusercontent.com"
+}
+
+resource "aws_iam_role" "deploy" {
+  name = "portal-tela-deploy"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect    = "Allow"
+      Action    = "sts:AssumeRoleWithWebIdentity"
+      Principal = { Federated = data.aws_iam_openid_connect_provider.github.arn }
+      Condition = {
+        StringEquals = {
+          "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com"
+          # So a branch main deste repositorio.
+          "token.actions.githubusercontent.com:sub" = "repo:${var.github_repo}:ref:refs/heads/main"
+        }
+      }
+    }]
+  })
+}
+
+resource "aws_iam_role_policy" "deploy" {
+  name = "publicar-site"
+  role = aws_iam_role.deploy.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect   = "Allow"
+        Action   = ["s3:ListBucket"]
+        Resource = aws_s3_bucket.site.arn
+      },
+      {
+        Effect   = "Allow"
+        Action   = ["s3:PutObject", "s3:DeleteObject"]
+        Resource = "${aws_s3_bucket.site.arn}/*"
+      },
+      {
+        Effect   = "Allow"
+        Action   = ["cloudfront:CreateInvalidation"]
+        Resource = aws_cloudfront_distribution.site.arn
+      },
+      {
+        # O workflow descobre o bucket e a distribuicao pelo nome, entao sobrevive a um destroy/apply.
+        Effect   = "Allow"
+        Action   = ["s3:ListAllMyBuckets", "cloudfront:ListDistributions"]
+        Resource = "*"
+      }
+    ]
+  })
+}
+
+output "deploy_role_arn" {
+  value = aws_iam_role.deploy.arn
 }

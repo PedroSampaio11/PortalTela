@@ -1,0 +1,67 @@
+name: Deploy
+
+# A cada push na main: build -> envia para o S3 -> limpa o cache do CloudFront.
+# A infra (S3, CloudFront, DNS, papel abaixo) vem do Terraform em terraform/main.tf.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Evita dois deploys ao mesmo tempo.
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+permissions:
+  id-token: write # necessario para assumir o papel da AWS via OIDC (sem chaves salvas)
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+      - run: npm run build
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::008971678296:role/portal-tela-deploy
+          aws-region: us-east-2
+
+      # Descobre o bucket e a distribuicao pelo nome, entao nao precisa de segredos nem variaveis.
+      - name: Encontrar bucket e CloudFront
+        run: |
+          BUCKET=$(aws s3api list-buckets --query "Buckets[?starts_with(Name, 'portal-tela-demo-')].Name | [0]" --output text)
+          DIST=$(aws cloudfront list-distributions --query "DistributionList.Items[?Comment=='Portal Tela - demo'].Id | [0]" --output text)
+          if [ "$BUCKET" = "None" ] || [ "$DIST" = "None" ]; then
+            echo "Bucket ou CloudFront nao encontrado. Rodou o terraform apply?" >&2
+            exit 1
+          fi
+          echo "BUCKET=$BUCKET" >> "$GITHUB_ENV"
+          echo "DIST=$DIST" >> "$GITHUB_ENV"
+
+      # Primeiro os assets (nomes com hash, cache longo), depois o resto: o index.html so
+      # aponta para arquivos que ja existem. Sem --delete nos assets para nao quebrar quem
+      # ainda esta com o index.html antigo aberto.
+      - name: Enviar assets
+        run: |
+          aws s3 sync dist/assets "s3://$BUCKET/assets" --exclude "*.woff2" \
+            --cache-control "public, max-age=31536000, immutable"
+          aws s3 sync dist/assets "s3://$BUCKET/assets" --exclude "*" --include "*.woff2" \
+            --content-type "font/woff2" --cache-control "public, max-age=31536000, immutable"
+
+      - name: Enviar index.html e demais arquivos
+        run: |
+          aws s3 sync dist "s3://$BUCKET" --exclude "assets/*" --delete \
+            --cache-control "no-cache"
+
+      - name: Limpar cache do CloudFront
+        run: aws cloudfront create-invalidation --distribution-id "$DIST" --paths "/*"
